@@ -41,6 +41,25 @@ _CSS = f"""
 window {{
     background-color: {BG_MAIN};
 }}
+button {{
+    text-shadow: none;
+    box-shadow: none;
+    -gtk-icon-shadow: none;
+    background-image: none;
+    background-color: {BG_ELEVATED};
+    border: 1px solid transparent;
+    color: {TEXT_SECONDARY};
+}}
+button:hover {{
+    background-image: none;
+    background-color: rgba(45, 45, 68, 0.8);
+    color: {TEXT_PRIMARY};
+}}
+button:active, button:checked {{
+    background-image: none;
+    background-color: {BG_ELEVATED};
+    color: {TEXT_PRIMARY};
+}}
 .sidebar {{
     background-color: {BG_CARD};
 }}
@@ -51,15 +70,19 @@ window {{
     padding: 12px 20px;
     color: {TEXT_SECONDARY};
     font-size: 13px;
+    text-shadow: none;
+    box-shadow: none;
 }}
 .sidebar-btn:hover {{
     background-color: {BG_ELEVATED};
+    text-shadow: none;
 }}
 .sidebar-btn.active {{
     color: {CPU_COLOR};
     font-weight: 600;
     background-color: rgba(255, 70, 85, 0.08);
     border-left-color: {CPU_COLOR};
+    text-shadow: none;
 }}
 .card {{
     background-color: {BG_CARD};
@@ -110,6 +133,34 @@ window {{
     border-color: {WARNING_COLOR};
     color: {WARNING_COLOR};
     font-weight: 600;
+}}
+switch {{
+    background-color: {TEXT_MUTED};
+    background-image: none;
+    border: none;
+    border-radius: 14px;
+    min-width: 48px;
+    min-height: 26px;
+    padding: 2px;
+}}
+switch slider {{
+    background-color: white;
+    background-image: none;
+    border-radius: 50%;
+    border: none;
+    min-width: 22px;
+    min-height: 22px;
+}}
+switch:checked {{
+    background-color: {WARNING_COLOR};
+    background-image: none;
+}}
+switch:checked slider {{
+    background-color: white;
+    background-image: none;
+}}
+switch:disabled {{
+    opacity: 0.4;
 }}
 .profile-indicator {{
     background-color: rgba(255, 70, 85, 0.13);

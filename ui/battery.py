@@ -48,20 +48,22 @@ class BatteryPage(Gtk.Box):
         )
 
         # Battery icon + percentage display
-        icon_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=16)
-        icon_row.set_margin_top(8)
+        icon_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=20)
+        icon_row.set_margin_top(16)
+        icon_row.set_margin_bottom(8)
 
         self._battery_icon = Gtk.DrawingArea()
-        self._battery_icon.set_size_request(80, 40)
+        self._battery_icon.set_size_request(150, 50)
         self._battery_icon.connect("draw", self._draw_battery)
         icon_row.pack_start(self._battery_icon, False, False, 0)
 
         pct_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        pct_box.set_valign(Gtk.Align.CENTER)
         self._pct_label = Gtk.Label()
         self._pct_label.set_markup(
-            f'<span foreground="{WARNING_COLOR}" font_desc="28" weight="bold">'
+            f'<span foreground="{WARNING_COLOR}" font_desc="32" weight="bold">'
             f'{self._current}</span>'
-            f'<span foreground="{WARNING_COLOR}88" font_desc="16">%</span>'
+            f'<span foreground="{WARNING_COLOR}88" font_desc="18">%</span>'
         )
         self._pct_label.set_halign(Gtk.Align.START)
         pct_box.pack_start(self._pct_label, False, False, 0)
@@ -106,27 +108,46 @@ class BatteryPage(Gtk.Box):
         alloc = widget.get_allocation()
         w, h = alloc.width, alloc.height
         rgba = hex_to_rgba(WARNING_COLOR)
+        r = 6  # corner radius
 
-        # Battery body
-        body_w = w - 8
+        # Battery body (rounded rectangle)
+        body_w = w - 10
         cr.set_source_rgba(*rgba)
-        cr.set_line_width(2)
-        cr.rectangle(1, 1, body_w, h - 2)
+        cr.set_line_width(2.5)
+        cr.move_to(r + 1, 1)
+        cr.line_to(body_w - r + 1, 1)
+        cr.arc(body_w - r + 1, r + 1, r, -math.pi / 2, 0)
+        cr.line_to(body_w + 1, h - r - 1)
+        cr.arc(body_w - r + 1, h - r - 1, r, 0, math.pi / 2)
+        cr.line_to(r + 1, h - 1)
+        cr.arc(r + 1, h - r - 1, r, math.pi / 2, math.pi)
+        cr.line_to(1, r + 1)
+        cr.arc(r + 1, r + 1, r, math.pi, 3 * math.pi / 2)
+        cr.close_path()
         cr.stroke()
 
-        # Terminal nub
-        cr.rectangle(body_w + 1, h * 0.25, 6, h * 0.5)
+        # Terminal nub (rounded)
+        nub_h = h * 0.4
+        nub_y = (h - nub_h) / 2
+        cr.move_to(body_w + 2, nub_y + 3)
+        cr.line_to(body_w + 6, nub_y + 3)
+        cr.arc(body_w + 6, nub_y + 3 + 3, 3, -math.pi / 2, 0)
+        cr.line_to(body_w + 9, nub_y + nub_h - 3)
+        cr.arc(body_w + 6, nub_y + nub_h - 3, 3, 0, math.pi / 2)
+        cr.line_to(body_w + 2, nub_y + nub_h)
+        cr.close_path()
         cr.fill()
 
-        # Fill level
+        # Fill level (with rounded clip)
         fill_frac = self._current / 100.0
-        fill_w = (body_w - 4) * fill_frac
-        grad = cairo.LinearGradient(2, 0, 2 + fill_w, 0)
-        grad.add_color_stop_rgba(0, rgba[0], rgba[1], rgba[2], 0.4)
-        grad.add_color_stop_rgba(1, rgba[0], rgba[1], rgba[2], 0.8)
-        cr.set_source(grad)
-        cr.rectangle(3, 3, fill_w, h - 6)
-        cr.fill()
+        fill_w = (body_w - 6) * fill_frac
+        if fill_w > 0:
+            grad = cairo.LinearGradient(4, 0, 4 + fill_w, 0)
+            grad.add_color_stop_rgba(0, rgba[0], rgba[1], rgba[2], 0.4)
+            grad.add_color_stop_rgba(1, rgba[0], rgba[1], rgba[2], 0.8)
+            cr.set_source(grad)
+            cr.rectangle(4, 4, fill_w, h - 8)
+            cr.fill()
 
     def _on_threshold_clicked(self, button, value):
         if self.ec.is_read_only:
@@ -147,8 +168,8 @@ class BatteryPage(Gtk.Box):
 
         # Update display
         self._pct_label.set_markup(
-            f'<span foreground="{WARNING_COLOR}" font_desc="28" weight="bold">'
+            f'<span foreground="{WARNING_COLOR}" font_desc="32" weight="bold">'
             f'{value}</span>'
-            f'<span foreground="{WARNING_COLOR}88" font_desc="16">%</span>'
+            f'<span foreground="{WARNING_COLOR}88" font_desc="18">%</span>'
         )
         self._battery_icon.queue_draw()

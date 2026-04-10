@@ -58,11 +58,20 @@ class FanControlPage(Gtk.Box):
         sep.set_margin_end(4)
         btn_row.pack_start(sep, False, False, 0)
 
-        # Cooler Boost toggle
-        self._boost_button = Gtk.Button(label="Cooler Boost")
-        self._boost_button.get_style_context().add_class("boost-btn")
-        self._boost_button.connect("clicked", self._on_boost_clicked)
-        btn_row.pack_start(self._boost_button, False, False, 0)
+        # Cooler Boost toggle switch
+        boost_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+        boost_box.set_valign(Gtk.Align.CENTER)
+        boost_box.pack_start(make_label("Cooler Boost", color=WARNING_COLOR, size=12), False, False, 0)
+        self._boost_switch = Gtk.Switch()
+        self._boost_switch.get_style_context().add_class("boost-switch")
+        self._boost_switch.set_valign(Gtk.Align.CENTER)
+        # Read current boost state
+        current = safe_read_byte(ec, model.cooler_boost_addr)
+        is_boosted = bool(current & (1 << model.cooler_boost_bit))
+        self._boost_switch.set_active(is_boosted)
+        self._boost_switch.connect("state-set", self._on_boost_toggled)
+        boost_box.pack_start(self._boost_switch, False, False, 0)
+        btn_row.pack_start(boost_box, False, False, 0)
 
         self.pack_start(btn_row, False, False, 0)
 
@@ -173,27 +182,22 @@ class FanControlPage(Gtk.Box):
         if self.on_profile_changed:
             self.on_profile_changed(profile_name)
 
-    def _on_boost_clicked(self, button):
+    def _on_boost_toggled(self, switch, state):
         if self.ec.is_read_only:
-            return
-        # Toggle cooler boost
+            switch.set_active(not state)
+            return True
         current = self.ec.read_byte(self.model.cooler_boost_addr)
-        is_active = bool(current & (1 << self.model.cooler_boost_bit))
-
-        if is_active:
-            # Disable boost
-            self.ec.write_byte(
-                self.model.cooler_boost_addr,
-                current & ~(1 << self.model.cooler_boost_bit)
-            )
-            self._boost_button.get_style_context().remove_class("active")
-        else:
-            # Enable boost
+        if state:
             self.ec.write_byte(
                 self.model.cooler_boost_addr,
                 current | (1 << self.model.cooler_boost_bit)
             )
-            self._boost_button.get_style_context().add_class("active")
+        else:
+            self.ec.write_byte(
+                self.model.cooler_boost_addr,
+                current & ~(1 << self.model.cooler_boost_bit)
+            )
+        return False
 
     def _on_curve_tab(self, button, which):
         """Switch between CPU and GPU fan curves."""
