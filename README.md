@@ -1,38 +1,112 @@
-# OpenFreezeCenter (OFC)
-- Provides a UI and automated scripts in order to control MSI Laptops. Check the #Supported section to see what models are supported.
-- Made for Linux, as MSI does not have a native Linux client.
-- if you do now want to run the GUI or if it is not working for you then try
-  # OpenFreezeCenter-Lite (OFC-l)
-  - Same thing just without GUI
-  - https://github.com/YoCodingMonster/OpenFreezeCenter-Lite
+# FrostCenter
 
-# INSTALLATION / UPDATING
-- ```cd``` into the download folder and execute (UBUNTU)
-  - ```chmod +x file_1.sh```
-  - ```chmod +x file_2.sh```
-  - ```chmod +x install.sh```
-- Now run the ```install.sh```, That will install all the dependencies and create a virtual python environment on desktop for the script to work.
-- (ONLY FOR INSTALLATION) ```Reboot``` after the script complete the first run.
+MSI laptop fan control and thermal monitoring for Linux.
 
-# RUNNING
-- Run ```install.sh``` from the desktop folder. 
+Dark-themed GTK3 app with real-time temperature graphs, interactive fan curve editor, and battery charge threshold control — no Windows required.
 
-## Supported Laptop models (tested)
-- MSI GP76 11UG
+![Python](https://img.shields.io/badge/python-3.8+-blue)
+![GTK](https://img.shields.io/badge/GTK-3.0-green)
+![License](https://img.shields.io/badge/license-GPL--3.0-orange)
 
-## Supported Linux Distro (tested)
-- Ubuntu
+## Features
 
-## Issue format
-- ISSUE # [CPU] - [LAPTOP MODEL] - [LINUX DISTRO]
-  - ```Example``` ISSUE # i7-11800H - MSI GP76 11UG - UBUNTU 23.05
+- **Dashboard** — Live CPU/GPU temperature and fan RPM with rolling 60-second graphs
+- **Fan Control** — Switch between Auto, Silent, Basic, and Advanced profiles. Interactive fan curve editor for Advanced mode with click-to-edit control points
+- **Cooler Boost** — One-click toggle for maximum fan speed
+- **Battery Threshold** — Set charge limit (50–100%) to preserve battery health
+- **130+ MSI models** — Auto-detects your laptop from the board name
 
-## Feedback
-- Please provide suggestions under the Feedback discussion tab!
+## Requirements
 
-## Goals
-- [X] Fan Control GUI
-- [X] Basic temperature and RPM monitoring
-- [ ] Advanced & Basic GUI control
-- [X] Battery Threshold
-- [ ] Webcam control
+- MSI laptop (see [Supported Models](#supported-models))
+- Linux with `/dev/port` access (Secure Boot must be disabled or in permissive mode)
+- Python 3.8+
+- PyGObject + GTK3
+
+## Installation
+
+```bash
+git clone https://github.com/gsriram24/FrostCenter.git
+cd FrostCenter
+chmod +x install.sh
+./install.sh
+```
+
+The installer checks dependencies and copies files to `~/.local/share/ofc/`. It creates a `frost` launcher in `~/.local/bin/`.
+
+### Installing dependencies
+
+If PyGObject/GTK3 isn't installed:
+
+| Distro | Command |
+|--------|---------|
+| Fedora | `sudo dnf install python3-gobject gtk3` |
+| Bazzite/Immutable | `rpm-ostree install python3-gobject gtk3` then reboot |
+| Ubuntu/Debian | `sudo apt install python3-gi gir1.2-gtk-3.0` |
+| Arch | `sudo pacman -S python-gobject gtk3` |
+
+## Usage
+
+```bash
+frost
+# or directly:
+sudo python3 OFC.py
+```
+
+Root access is required for EC register access via `/dev/port`.
+
+## Supported Models
+
+Auto-detection reads `/sys/class/dmi/id/board_name` and looks it up in the built-in database. **130+ MSI boards** are supported across 21 configuration groups:
+
+| Family | Examples |
+|--------|----------|
+| GF series | GF63, GF65 Thin, GF75 Thin |
+| GL series | GL62M, GL63, GL65, GL73, GL75 |
+| GE series | GE62, GE63, GE66, GE72, GE75, GE76 Raider |
+| GP series | GP62, GP63, GP65, GP66, GP73, GP75, GP76 Leopard |
+| GS series | GS40, GS43, GS63, GS65, GS66, GS73, GS75 Stealth |
+| GT series | GT62, GT72 Dominator, GT75 |
+| Modern | Modern 14/15 A10, B10, B13, H |
+| Prestige | Prestige 13/14/15/16 Evo |
+| Creator | Creator 15/16/17 |
+| Katana/Cyborg | Katana GF66, Cyborg 15 |
+| Vector/Crosshair | Vector GP66/76, Crosshair 15/16/17 HX |
+| Stealth/Titan | Stealth 14/16 Studio, Titan 18 HX |
+| Summit | Summit E13/E16 Flip |
+| Alpha/Bravo | Alpha 15/17, Bravo 15/17 |
+
+If your model isn't detected, run `cat /sys/class/dmi/id/board_name` and open an issue with the output.
+
+## How It Works
+
+FrostCenter communicates with the laptop's Embedded Controller (EC) through `/dev/port` using the ACPI EC protocol (ports `0x62` data, `0x66` command/status). This is the same interface that MSI's Windows tools use — no custom kernel modules required.
+
+## Project Structure
+
+```
+OFC.py              Entry point — window, sidebar, page switching
+ec_access.py        EC read/write via /dev/port
+model_config.py     Auto-detection, JSON database loading, user config
+models/database.json  130+ MSI board definitions
+ui/
+  theme.py          Color palette, CSS, widget helpers
+  helpers.py        EC helper functions (safe reads, profile switching)
+  widgets.py        RollingGraph, StatCard (Cairo-drawn)
+  fan_curve_editor.py  Interactive fan curve with click-to-edit popovers
+  dashboard.py      Dashboard page
+  fan_control.py    Fan control page
+  battery.py        Battery threshold page
+  settings.py       Settings page
+```
+
+## Credits
+
+Built on data from:
+- [msi-ec](https://github.com/BeardOverflow/msi-ec) — Linux kernel module for MSI EC (config groups and board mappings)
+- [isw](https://github.com/YoyPa/isw) — MSI fan control tool (default fan curves)
+- [OpenFreezeCenter](https://github.com/YoCodingMonster/OpenFreezeCenter) — Original project by YoCodingMonster
+
+## License
+
+GPL-3.0

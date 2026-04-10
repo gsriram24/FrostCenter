@@ -1,14 +1,14 @@
 #!/bin/bash
 set -e
 
-# OpenFreezeCenter for Bazzite - Installer
-# Uses /dev/port for EC access (no kernel modules needed)
+# FrostCenter - Installer
+# MSI laptop fan control for Linux via /dev/port (no kernel modules needed)
 
 INSTALL_DIR="$HOME/.local/share/ofc"
 BIN_DIR="$HOME/.local/bin"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-echo "=== OpenFreezeCenter for Bazzite ==="
+echo "=== FrostCenter ==="
 echo ""
 
 # Check for MSI laptop
@@ -43,9 +43,11 @@ if python3 -c "import gi; gi.require_version('Gtk','3.0'); from gi.repository im
 else
     echo "  Python3 + PyGObject: NOT FOUND"
     echo ""
-    echo "  On Bazzite, try:"
-    echo "    rpm-ostree install python3-gobject gtk3"
-    echo "  then reboot and re-run this installer."
+    echo "  Install PyGObject and GTK3 for your distro:"
+    echo "    Fedora/Bazzite: sudo dnf install python3-gobject gtk3"
+    echo "    Immutable:      rpm-ostree install python3-gobject gtk3 && reboot"
+    echo "    Ubuntu/Debian:  sudo apt install python3-gi gir1.2-gtk-3.0"
+    echo "    Arch:           sudo pacman -S python-gobject gtk3"
     exit 1
 fi
 
@@ -68,15 +70,15 @@ echo "  Files copied."
 
 # Create launcher script
 mkdir -p "$BIN_DIR"
-cat > "$BIN_DIR/ofc" << 'LAUNCHER'
+cat > "$BIN_DIR/frost" << 'LAUNCHER'
 #!/bin/bash
-# OpenFreezeCenter launcher (requires root for /dev/port access)
+# FrostCenter launcher (requires root for /dev/port access)
 OFC_DIR="$HOME/.local/share/ofc"
 exec sudo python3 "$OFC_DIR/OFC.py" "$@"
 LAUNCHER
-chmod +x "$BIN_DIR/ofc"
+chmod +x "$BIN_DIR/frost"
 
-echo "  Launcher created at $BIN_DIR/ofc"
+echo "  Launcher created at $BIN_DIR/frost"
 
 # Check if ~/.local/bin is in PATH
 if ! echo "$PATH" | grep -q "$HOME/.local/bin"; then
@@ -89,7 +91,7 @@ fi
 echo ""
 echo "=== Installation complete ==="
 echo ""
-echo "To run: ofc"
+echo "To run: frost"
 echo "  (or: sudo python3 $INSTALL_DIR/OFC.py)"
 echo ""
 echo "Model: $PRODUCT ($BOARD)"

@@ -105,8 +105,8 @@ class SettingsPage(Gtk.Box):
         about_label = Gtk.Label()
         about_label.set_markup(
             f'<span foreground="{TEXT_MUTED}" font_desc="11">'
-            f'OpenFreezeCenter for Bazzite\n'
-            f'<span font_desc="10">EC access via /dev/port · 130+ MSI models supported</span>'
+            f'FrostCenter\n'
+            f'<span font_desc="10">MSI laptop fan control for Linux · 130+ models supported</span>'
             f'</span>'
         )
         about_label.set_justify(Gtk.Justification.CENTER)

@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-"""OpenFreezeCenter — MSI laptop fan control and monitoring for Bazzite Linux."""
+"""FrostCenter — MSI laptop fan control and monitoring for Linux."""
 
 import sys
 import gi
@@ -45,7 +45,7 @@ def main():
     user_cfg = load_user_config()
 
     # --- Build window ---
-    window = Gtk.Window(title=f"OFC — {model.model_name}")
+    window = Gtk.Window(title=f"FrostCenter — {model.model_name}")
     window.set_default_size(900, 550)
     window.set_size_request(700, 450)
     window.connect("destroy", Gtk.main_quit)
