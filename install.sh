@@ -53,11 +53,13 @@ fi
 echo ""
 echo "Installing to $INSTALL_DIR ..."
 mkdir -p "$INSTALL_DIR/models"
+mkdir -p "$INSTALL_DIR/ui"
 
 cp "$SCRIPT_DIR/OFC.py" "$INSTALL_DIR/"
 cp "$SCRIPT_DIR/ec_access.py" "$INSTALL_DIR/"
 cp "$SCRIPT_DIR/model_config.py" "$INSTALL_DIR/"
 cp "$SCRIPT_DIR/models/database.json" "$INSTALL_DIR/models/"
+cp "$SCRIPT_DIR"/ui/*.py "$INSTALL_DIR/ui/"
 if [ -f "$SCRIPT_DIR/LICENSE" ]; then
     cp "$SCRIPT_DIR/LICENSE" "$INSTALL_DIR/"
 fi
