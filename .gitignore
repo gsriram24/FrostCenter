@@ -20,6 +20,9 @@ config.py
 # Claude Code
 .claude/
 
+# Superpowers brainstorm artifacts
+.superpowers/
+
 # OS
 .DS_Store
 Thumbs.db
