@@ -1,423 +1,382 @@
-#! /usr/bin/python3
+#!/usr/bin/python3
 
+import sys
 import os
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, GLib
 
-EC_IO_FILE = '/sys/kernel/debug/ec/ec0/io'
+from ec_access import ECAccess, ECAccessError, ECTimeoutError
+from model_config import ModelConfig, ModelNotFoundError, load_user_config, save_user_config
 
-# Universal EC Byte writing
+# --- Phase 1: Read-only mode ---
+READ_ONLY = True
 
-def write(BYTE, VALUE):
-    with open(EC_IO_FILE,'w+b') as file:
-        file.seek(BYTE)
-        file.write(bytes((VALUE,)))
+# --- Initialize model detection and EC access ---
 
-# Universal EC Byte reading
-
-def read(BYTE, SIZE, FORMAT):
-    with open(EC_IO_FILE,'r+b') as file:
-        file.seek(BYTE)
-        if SIZE == 1 and FORMAT == 0:
-            VALUE = int(file.read(1).hex(),16)
-        elif SIZE == 1 and FORMAT == 1:
-            VALUE = file.read(1).hex()
-        elif SIZE == 2 and FORMAT == 0:
-            VALUE = int(file.read(2).hex(),16)
-        elif SIZE == 2 and FORMAT == 1:
-            VALUE = file.read(2).hex()
-    return VALUE
-
-def fan_profile(PROFILE, ONOFF, ADDRESS = 0, SPEED = 0):
-    # Setting up fan profiles
-    if PROFILE != 4:
-        write(ONOFF[0][0], ONOFF[0][1])      # Cooler Booster fan curve off
-        write(ONOFF[1][0], ONOFF[1][1])      # Auto/Adv/Basic/ fan curve on
-        for CPU_GPU_ROWS in range (0, 2):
-            for FAN_SPEEDS in range (0, 7):
-                write(ADDRESS[CPU_GPU_ROWS][FAN_SPEEDS], SPEED[CPU_GPU_ROWS][FAN_SPEEDS])
-    else:
-        write(ONOFF[0], ONOFF[1])      # Cooler Booster fan curve on/off
-
-#   PROFILE                      = 1 or 2 or 3 or 4
-#	AUTO_SPEED                   = [[CPU1, CPU2, CPU3, CPU4, CPU5, CPU6, CPU7], [GPU1, GPU2, GPU3, GPU4, GPU5, GPU6, GPU7]]
-#	ADV_SPEED                    = [[CPU1, CPU2, CPU3, CPU4, CPU5, CPU6, CPU7], [GPU1, GPU2, GPU3, GPU4, GPU5, GPU6, GPU7]]
-#   BASIC_OFFSET                 = Value between -30 to +30
-#	CPU                          = 1 if CPU is 11th gen and above || 0 if CPU is 10th gen or below
-#	AUTO_ADV_VALUES              = [FAN PROFILE ADDRESS, AUTO VALUE, ADVANCED VALUE]
-#	COOLER_BOOSTER_OFF_ON_VALUES = [COOLER BOOSTER ADDRESS, COOLER BOOSTER OFF VALUE, COOLER BOOSTER ON VALUE]
-#	CPU_GPU_FAN_SPEED_ADDRESS    = [[CPU1, CPU2, CPU3, CPU4, CPU5, CPU6, CPU7], [GPU1, GPU2, GPU3, GPU4, GPU5, GPU6, GPU7]]
-#	CPU_GPU_TEMP_ADDRESS         = [CPU CURRENT TEMP ADDRESS, GPU CURRENT TEMP ADDRESS]
-#	CPU_GPU_RPM_ADDRESS          = [CPU FAN RPM ADDRESS, GPU FAN RPM ADDRESS]
-#   BATTERY_THRESHOLD_VALUE      = 50 to 100
-
-MIN_MAX = [100, 0, 100, 0]
-BASIC_SPEED = [[0, 0, 0, 0, 0, 0, 0],[0, 0, 0, 0, 0, 0, 0]]
-
-def create_dialog(TITLE, TEXT, YES, NO, x, y, RESPONSE_TYPE):
-	dialog = Gtk.Dialog(title = TITLE)
-	dialog.set_default_size(x, y)
-	if RESPONSE_TYPE == 1:
-		dialog.add_button("Yes", Gtk.ResponseType.YES)
-		dialog.add_button("No", Gtk.ResponseType.NO)
-	elif RESPONSE_TYPE == 2:
-		dialog.add_button("Yes", Gtk.ResponseType.OK)
-		dialog.add_button("No", Gtk.ResponseType.CANCEL)
-	else:
-		dialog.add_button("Yes", Gtk.ResponseType.OK)
-	label = Gtk.Label(TEXT)
-	dialog.vbox.add(label)
-	label.show()
-
-	response = dialog.run()
-	if RESPONSE_TYPE == 1:
-		if response == Gtk.ResponseType.YES: LINE = YES
-		elif response == Gtk.ResponseType.NO: LINE = NO
-	elif RESPONSE_TYPE == 2:
-		if response == Gtk.ResponseType.OK: os.system("shutdown -r +1")
-		elif response == Gtk.ResponseType.CANCEL: create_dialog("Warning", "The Application will not be able to perform EC Read/Write for changing Fan profiles and Monitoring!", "", "", 200, 150, 3)
-
-	dialog.show_all()
-	dialog.destroy()
-	return LINE
-
-################################################################
-# Setting the config.py file where all the data will be stored #
-################################################################
-
-PATH_TO_CONFIG = str(os.path.realpath(os.path.dirname(__file__))) + "/config.py"
 try:
-	open(PATH_TO_CONFIG, "r")
-except FileNotFoundError:
-	CONFIG = []
-	CHOICE = "\nIf you want universal auto fan profile which is as below then [SELECT YES]\n\tAUTO SPEEDS = [[0, 40, 48, 56, 64, 72, 80], [0, 48, 56, 64, 72, 79, 86]]\n\nIf you want to fetch vendor specified auto fan profile which will require you to \n\t1 :- Close this(Before closing read all the steps)\n\t2 :- boot into windows\n\t3 :- set the fan profile to auto\n\t4 :- boot back to linux and then [SELECT NO]"
-	LINE_YES = "PROFILE = 1\nAUTO_SPEED = [[0, 40, 48, 56, 64, 72, 80], [0, 48, 56, 64, 72, 79, 86]]"
-	LINE_NO = "PROFILE = 1\nAUTO_SPEED = [["+str(read(0x72, 1, 0))+", "+str(read(0x73, 1, 0))+", "+str(read(0x74, 1, 0))+", "+str(read(0x75, 1, 0))+", "+str(read(0x76, 1, 0))+", "+str(read(0x77, 1, 0))+", "+str(read(0x78, 1, 0))+"], ["+str(read(0x8a, 1, 0))+", "+str(read(0x8b, 1, 0))+", "+str(read(0x8c, 1, 0))+", "+str(read(0x8d, 1, 0))+", "+str(read(0x8e, 1, 0))+", "+str(read(0x8f, 1, 0))+", "+str(read(0x90, 1, 0))+"]]"
-	CONFIG.append(create_dialog("Auto Profile Selection", CHOICE, LINE_YES, LINE_NO, 300, 150, 1))
+    model = ModelConfig()
+except ModelNotFoundError as e:
+    print(f"ERROR: {e}", file=sys.stderr)
+    print(f"Your board: {e.board_name}", file=sys.stderr)
+    print(f"Known boards ({len(e.available_boards)}):", file=sys.stderr)
+    for b in e.available_boards[:20]:
+        board_info = e.database["boards"][b]
+        print(f"  {b} - {board_info['name']}", file=sys.stderr)
+    if len(e.available_boards) > 20:
+        print(f"  ... and {len(e.available_boards) - 20} more", file=sys.stderr)
+    sys.exit(1)
+except Exception as e:
+    print(f"ERROR loading model config: {e}", file=sys.stderr)
+    sys.exit(1)
 
-	CHOICE = "\nIs your CPU intel 10th Gen and above\n"
-	LINE_YES = "\nADV_SPEED =  [[0, 40, 48, 56, 64, 72, 80], [0, 48, 56, 64, 72, 79, 86]] # Edit this list for ADVANCED FAN SPEEDS first the CPU speeds the GPU speeds\nBASIC_OFFSET = 0 # Edit this for a offset of fan speeds from AUTO SPEEDS from -30 to 30\nCPU = 1\nAUTO_ADV_VALUES = [0xd4, 13, 141]\nCOOLER_BOOSTER_OFF_ON_VALUES = [0x98, 2, 130]\nCPU_GPU_FAN_SPEED_ADDRESS = [[0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78], [0x8a, 0x8b, 0x8c, 0x8d, 0x8e, 0x8f, 0x90]]\nCPU_GPU_TEMP_ADDRESS = [0x68, 0x80]\nCPU_GPU_RPM_ADDRESS = [0xc8, 0xca]\nBATTERY_THRESHOLD_VALUE = 100 # Edit this value from between 50 to 100 for the percentage your battery will charge upto"
-	LINE_NO =  "\nADV_SPEED =  [[0, 40, 48, 56, 64, 72, 80], [0, 48, 56, 64, 72, 79, 86]] # Edit this list for ADVANCED FAN SPEEDS first the CPU speeds the GPU speeds\nBASIC_OFFSET = 0 # Edit this for a offset of fan speeds from AUTO SPEEDS from -30 to 30\nCPU = 0\nAUTO_ADV_VALUES = [0xf4, 12, 140]\nCOOLER_BOOSTER_OFF_ON_VALUES = [0x98, 0, 128]\nCPU_GPU_FAN_SPEED_ADDRESS = [[0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78], [0x8a, 0x8b, 0x8c, 0x8d, 0x8e, 0x8f, 0x90]]\nCPU_GPU_TEMP_ADDRESS = [0x68, 0x80]\nCPU_GPU_RPM_ADDRESS = [0xc8, 0xca]\nBATTERY_THRESHOLD_VALUE = 100 # Edit this value from between 50 to 100 for the percentage your battery will charge upto"
-	CONFIG.append(create_dialog("CPU Gen Selection", CHOICE, LINE_YES, LINE_NO, 300, 50, 1))
+print(f"Detected: {model.model_name} ({model.board_name}, group {model.group})")
+print(f"  CPU temp: 0x{model.cpu_temp_addr:02x}, RPM: 0x{model.cpu_fan_rpm_addr:02x}")
+if model.has_gpu:
+    print(f"  GPU temp: 0x{model.gpu_temp_addr:02x}, RPM: 0x{model.gpu_fan_rpm_addr:02x}")
+print(f"  Fan mode: 0x{model.fan_mode_addr:02x}, modes: {list(model.fan_modes.keys())}")
+if model.battery_threshold_addr is not None:
+    print(f"  Battery threshold: 0x{model.battery_threshold_addr:02x}")
+print(f"  Read-only mode: {READ_ONLY}")
 
-	CONFIG_FILE = open(PATH_TO_CONFIG, "w")
-	CONFIG_FILE.writelines(CONFIG)
-	CONFIG_FILE.close()
-finally:
-	import config
+try:
+    ec = ECAccess(read_only=READ_ONLY)
+except ECAccessError as e:
+    print(f"ERROR: {e}", file=sys.stderr)
+    sys.exit(1)
 
-##########################
-# Writing config.py file #
-##########################
+user_cfg = load_user_config()
 
-def config_writer():
-    CONFIG = ""
-    CONFIG_FILE = open(PATH_TO_CONFIG, "r")
-    CONFIG = CONFIG_FILE.read()
-    CONFIG_FILE.close()
+# --- Fan profile management (disabled in Phase 1) ---
 
-    CONFIG = ("PROFILE = " + str(config.PROFILE))
-    CONFIG = CONFIG + ("\nAUTO_SPEED = " + str(config.AUTO_SPEED))
-    CONFIG = CONFIG + ("\nADV_SPEED = " + str(config.ADV_SPEED))
-    CONFIG = CONFIG + ("\nBASIC_OFFSET = " + str(config.BASIC_OFFSET))
-    CONFIG = CONFIG + ("\nCPU = " + str(config.CPU))
-    CONFIG = CONFIG + ("\nAUTO_ADV_VALUES = " + str(config.AUTO_ADV_VALUES))
-    CONFIG = CONFIG + ("\nCOOLER_BOOSTER_OFF_ON_VALUES = " + str(config.COOLER_BOOSTER_OFF_ON_VALUES))
-    CONFIG = CONFIG + ("\nCPU_GPU_FAN_SPEED_ADDRESS = " + str(config.CPU_GPU_FAN_SPEED_ADDRESS))
-    CONFIG = CONFIG + ("\nCPU_GPU_TEMP_ADDRESS = " + str(config.CPU_GPU_TEMP_ADDRESS))
-    CONFIG = CONFIG + ("\nCPU_GPU_RPM_ADDRESS = " + str(config.CPU_GPU_RPM_ADDRESS))
-    CONFIG = CONFIG + ("\nBATTERY_THRESHOLD_VALUE = " + str(config.BATTERY_THRESHOLD_VALUE))
+BASIC_SPEED = [[0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0]]
 
-    CONFIG_FILE = open(PATH_TO_CONFIG, "w")
-    CONFIG_FILE.writelines(CONFIG)
-    CONFIG_FILE.close()
+def fan_profile(profile_name, speeds=None):
+    """Write a fan profile to the EC. Disabled in read-only mode."""
+    if READ_ONLY:
+        return
 
-#########################################
-# chekcing fan speeds are within limits #
-#########################################
+    if profile_name == "cooler_booster":
+        # Set cooler boost bit
+        current = ec.read_byte(model.cooler_boost_addr)
+        ec.write_byte(model.cooler_boost_addr, current | (1 << model.cooler_boost_bit))
+    else:
+        # Clear cooler boost bit first
+        current = ec.read_byte(model.cooler_boost_addr)
+        ec.write_byte(model.cooler_boost_addr, current & ~(1 << model.cooler_boost_bit))
 
-def speed_checker(SPEEDS, OFFSET):
-	for ROW in range(0, 2):
-		for COLUMN in range(0, 7):
-			SPEEDS[ROW][COLUMN] = 0 if (SPEEDS[ROW][COLUMN] + OFFSET < 0) else 150 if (SPEEDS[ROW][COLUMN] + OFFSET > 150) else SPEEDS[ROW][COLUMN] + OFFSET
-	return SPEEDS
+        # Set fan mode
+        mode_value = model.fan_modes.get(profile_name)
+        if mode_value is not None:
+            ec.write_byte(model.fan_mode_addr, mode_value)
 
-#############################################
-# Below functions are part of GUI designing #
-#############################################
+        # Write fan curve speeds if provided
+        if speeds and model.has_gpu:
+            for i in range(7):
+                ec.write_byte(model.cpu_fan_curve_speed_addrs[i], speeds[0][i])
+                ec.write_byte(model.gpu_fan_curve_speed_addrs[i], speeds[1][i])
+        elif speeds:
+            for i in range(7):
+                ec.write_byte(model.cpu_fan_curve_speed_addrs[i], speeds[0][i])
+
+
+def speed_checker(speeds, offset):
+    """Clamp fan speeds (with offset) to 0-150 range."""
+    result = [row[:] for row in speeds]  # deep copy
+    for row in range(len(result)):
+        for col in range(7):
+            val = result[row][col] + offset
+            result[row][col] = max(0, min(150, val))
+    return result
+
+
+# --- GUI callbacks (profile/battery selectors disabled in Phase 1) ---
+
+PROFILE_NAMES = list(model.fan_modes.keys()) + ["cooler_booster"]
+# Map display names
+PROFILE_DISPLAY = {
+    "auto": "Auto",
+    "silent": "Silent",
+    "basic": "Basic",
+    "advanced": "Advanced",
+    "cooler_booster": "Cooler Booster",
+}
+
 
 def profile_selection(combobox):
-	model = combobox.get_model()
-	active_iter = combobox.get_active_iter()
-	profile = model[active_iter][0]
-	if profile == "Auto":
-		config.PROFILE = 1
-		config_writer()
-		fan_profile(1, [[config.AUTO_ADV_VALUES[0], config.AUTO_ADV_VALUES[1]], [config.COOLER_BOOSTER_OFF_ON_VALUES[0], config.COOLER_BOOSTER_OFF_ON_VALUES[1]]], config.CPU_GPU_FAN_SPEED_ADDRESS, speed_checker(config.AUTO_SPEED, 0))
-	elif profile == "Basic":
-		config.PROFILE = 2
-		config_writer()
-		fan_profile(2, [[config.AUTO_ADV_VALUES[0], config.AUTO_ADV_VALUES[2]], [config.COOLER_BOOSTER_OFF_ON_VALUES[0], config.COOLER_BOOSTER_OFF_ON_VALUES[1]]], config.CPU_GPU_FAN_SPEED_ADDRESS, speed_checker(BASIC_SPEED, 30 if (config.BASIC_OFFSET > 30) else -30 if (config.BASIC_OFFSET < -30) else config.BASIC_OFFSET))
-	elif profile == "Advanced":
-		config.PROFILE = 3
-		config_writer()
-		fan_profile(3, [[config.AUTO_ADV_VALUES[0], config.AUTO_ADV_VALUES[2]], [config.COOLER_BOOSTER_OFF_ON_VALUES[0], config.COOLER_BOOSTER_OFF_ON_VALUES[1]]], config.CPU_GPU_FAN_SPEED_ADDRESS, speed_checker(config.ADV_SPEED, 0))
-	elif profile == "Cooler Booster":
-		config.PROFILE = 4
-		config_writer()
-		fan_profile(4, [config.COOLER_BOOSTER_OFF_ON_VALUES[0], config.COOLER_BOOSTER_OFF_ON_VALUES[2]])
+    """Handle fan profile selection change."""
+    if READ_ONLY:
+        return
+
+    combo_model = combobox.get_model()
+    active_iter = combobox.get_active_iter()
+    display_name = combo_model[active_iter][0]
+
+    # Find internal name from display name
+    profile_name = None
+    for key, disp in PROFILE_DISPLAY.items():
+        if disp == display_name:
+            profile_name = key
+            break
+
+    if not profile_name:
+        return
+
+    user_cfg["profile"] = profile_name
+    save_user_config(user_cfg)
+
+    if profile_name == "auto":
+        fan_profile("auto", speed_checker(user_cfg["auto_speed"], 0))
+    elif profile_name == "basic":
+        offset = max(-30, min(30, user_cfg["basic_offset"]))
+        fan_profile("basic", speed_checker(BASIC_SPEED, offset))
+    elif profile_name == "advanced":
+        fan_profile("advanced", speed_checker(user_cfg["adv_speed"], 0))
+    elif profile_name == "silent":
+        fan_profile("silent")
+    elif profile_name == "cooler_booster":
+        fan_profile("cooler_booster")
+
 
 def bct_selection(combobox):
-	model = combobox.get_model()
-	active_iter = combobox.get_active_iter()
-	config.BATTERY_THRESHOLD_VALUE = int(model[active_iter][0])
-	write(0xe4, config.BATTERY_THRESHOLD_VALUE + 128)
-	config_writer()
+    """Handle battery charge threshold selection change."""
+    if READ_ONLY:
+        return
+    if model.battery_threshold_addr is None:
+        return
+
+    combo_model = combobox.get_model()
+    active_iter = combobox.get_active_iter()
+    threshold = int(combo_model[active_iter][0])
+    user_cfg["battery_threshold"] = threshold
+    ec.write_byte(model.battery_threshold_addr, threshold + 128)
+    save_user_config(user_cfg)
+
+
+# --- Temperature/RPM monitoring ---
+
+MIN_MAX = [100, 0, 100, 0]  # [cpu_min, cpu_max, gpu_min, gpu_max]
+
 
 def label_maker(text, x, y, offset, fixed):
-	LABEL = Gtk.Label()
-	LABEL.set_property("width-request", 80)
-	LABEL.set_property("height-request", 35)
-	LABEL.set_property("visible", True)
-	LABEL.set_property("can-focus", False)
-	LABEL.set_property("halign", Gtk.Align.CENTER)
-	LABEL.set_property("valign", Gtk.Align.CENTER)
-	LABEL.set_xalign(offset)
-	LABEL.set_property("margin-left", 0)
-	LABEL.set_property("margin-right", 10)
-	LABEL.set_label(text)
-	css_provider = Gtk.CssProvider()
-	css_provider.load_from_data(f"""
-	label {{
-		text-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
-	}}
-	""".encode())
-	context = LABEL.get_style_context()
-	context.add_provider(css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
-	fixed.put(LABEL, x, y)
-	fixed.add(LABEL)
+    """Create a styled label and add it to the fixed container."""
+    label = Gtk.Label()
+    label.set_property("width-request", 80)
+    label.set_property("height-request", 35)
+    label.set_property("visible", True)
+    label.set_property("can-focus", False)
+    label.set_property("halign", Gtk.Align.CENTER)
+    label.set_property("valign", Gtk.Align.CENTER)
+    label.set_xalign(offset)
+    label.set_property("margin-left", 0)
+    label.set_property("margin-right", 10)
+    label.set_label(text)
+    css_provider = Gtk.CssProvider()
+    css_provider.load_from_data("""
+    label {
+        text-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+    }
+    """.encode())
+    context = label.get_style_context()
+    context.add_provider(css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+    fixed.put(label, x, y)
+    fixed.add(label)
+
+
+def safe_read_byte(addr):
+    """Read a byte from EC, return 0 on error."""
+    try:
+        return ec.read_byte(addr)
+    except ECTimeoutError:
+        return 0
+
+
+def safe_read_rpm(addr):
+    """Read fan RPM from EC. Returns 0 if fan is stopped or on error."""
+    try:
+        raw = ec.read_word(addr)
+        if raw == 0:
+            return 0
+        return model.rpm_divisor // raw
+    except (ECTimeoutError, ZeroDivisionError):
+        return 0
+
 
 def update_label():
-	CPU_TEMP = read(config.CPU_GPU_TEMP_ADDRESS[0], 1, 0)
-	GPU_TEMP = read(config.CPU_GPU_TEMP_ADDRESS[1], 1, 0)
-	try:
-		CPU_FAN_RPM = 478000//read(config.CPU_GPU_RPM_ADDRESS[0], 2, 0)
-	except ZeroDivisionError:
-		CPU_FAN_RPM = 0
-	try:
-		GPU_FAN_RPM = 478000//read(config.CPU_GPU_RPM_ADDRESS[1], 2, 0)
-	except ZeroDivisionError:
-		GPU_FAN_RPM = 0
+    """Periodic callback to update temperature and RPM displays."""
+    CPU_TEMP = safe_read_byte(model.cpu_temp_addr)
+    CPU_FAN_RPM = safe_read_rpm(model.cpu_fan_rpm_addr)
 
-	parent_window.CPU_CURR_TEMP.set_text(str(CPU_TEMP))
-	if MIN_MAX[0] > CPU_TEMP:
-		MIN_MAX[0] = CPU_TEMP
-	if MIN_MAX[1] < CPU_TEMP:
-		MIN_MAX[1] = CPU_TEMP
-	parent_window.CPU_MIN_TEMP.set_text(str(MIN_MAX[0]))
-	parent_window.CPU_MAX_TEMP.set_text(str(MIN_MAX[1]))
+    parent_window.CPU_CURR_TEMP.set_text(str(CPU_TEMP))
+    if MIN_MAX[0] > CPU_TEMP:
+        MIN_MAX[0] = CPU_TEMP
+    if MIN_MAX[1] < CPU_TEMP:
+        MIN_MAX[1] = CPU_TEMP
+    parent_window.CPU_MIN_TEMP.set_text(str(MIN_MAX[0]))
+    parent_window.CPU_MAX_TEMP.set_text(str(MIN_MAX[1]))
+    parent_window.CPU_FAN_RPM.set_text(str(CPU_FAN_RPM))
 
-	parent_window.GPU_CURR_TEMP.set_text(str(GPU_TEMP))
-	if MIN_MAX[2] > GPU_TEMP:
-		MIN_MAX[2] = GPU_TEMP
-	if MIN_MAX[3] < GPU_TEMP:
-		MIN_MAX[3] = GPU_TEMP
-	parent_window.GPU_MIN_TEMP.set_text(str(MIN_MAX[2]))
-	parent_window.GPU_MAX_TEMP.set_text(str(MIN_MAX[3]))
+    if model.has_gpu:
+        GPU_TEMP = safe_read_byte(model.gpu_temp_addr)
+        GPU_FAN_RPM = safe_read_rpm(model.gpu_fan_rpm_addr)
 
-	parent_window.CPU_FAN_RPM.set_text(str(CPU_FAN_RPM))
-	parent_window.GPU_FAN_RPM.set_text(str(GPU_FAN_RPM))
-	return True
+        parent_window.GPU_CURR_TEMP.set_text(str(GPU_TEMP))
+        if MIN_MAX[2] > GPU_TEMP:
+            MIN_MAX[2] = GPU_TEMP
+        if MIN_MAX[3] < GPU_TEMP:
+            MIN_MAX[3] = GPU_TEMP
+        parent_window.GPU_MIN_TEMP.set_text(str(MIN_MAX[2]))
+        parent_window.GPU_MAX_TEMP.set_text(str(MIN_MAX[3]))
+        parent_window.GPU_FAN_RPM.set_text(str(GPU_FAN_RPM))
+
+    return True  # keep timer running
+
+
+# --- Main GUI Window ---
+
+def make_data_label(css_provider):
+    """Create a styled data label for temperature/RPM values."""
+    label = Gtk.Label()
+    label.set_property("width-request", 80)
+    label.set_property("height-request", 35)
+    label.set_property("visible", True)
+    label.set_property("can-focus", False)
+    label.set_property("halign", Gtk.Align.CENTER)
+    label.set_property("valign", Gtk.Align.CENTER)
+    label.set_xalign(0.35)
+    label.set_property("margin-left", 0)
+    label.set_property("margin-right", 10)
+    style = label.get_style_context()
+    style.add_provider(css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+    return label
+
 
 class ParentWindow(Gtk.Window):
-	def __init__(self):
-		Gtk.Window.__init__(self, title = "Open Freeze Center (OFC)")
-		self.set_default_size(300, 190)
-		fixed = Gtk.Fixed()
-		self.add(fixed)
+    def __init__(self):
+        mode_str = "[READ-ONLY] " if READ_ONLY else ""
+        Gtk.Window.__init__(self, title=f"OFC {mode_str}- {model.model_name}")
+        self.set_default_size(300, 190)
+        fixed = Gtk.Fixed()
+        self.add(fixed)
 
-		profile_selector = Gtk.ComboBox()
-		profile_list = Gtk.ListStore(str)
-		profile_list.append(["Auto"])
-		profile_list.append(["Basic"])
-		profile_list.append(["Advanced"])
-		profile_list.append(["Cooler Booster"])
-		profile_selector.set_model(profile_list)
-		cell_renderer = Gtk.CellRendererText()
-		profile_selector.pack_start(cell_renderer, True)
-		profile_selector.add_attribute(cell_renderer, "text", 0)
-		profile_selector.set_active(config.PROFILE - 1)
-		profile_selector.connect("changed", profile_selection)
-		profile_selector.set_property("width-request", 80)
-		profile_selector.set_property("height-request", 35)
-		fixed.put(profile_selector, 160, 10)
-		fixed.add(profile_selector)
+        # CSS for text shadow
+        css_provider = Gtk.CssProvider()
+        css_provider.load_from_data("""
+        label {
+            text-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+        }
+        """.encode())
 
-		css_provider = Gtk.CssProvider()
-		css_provider.load_from_data(f"""
-		label {{
-			text-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
-		}}
-		""".encode())
+        # --- Profile selector ---
+        profile_selector = Gtk.ComboBox()
+        profile_list = Gtk.ListStore(str)
+        active_index = 0
+        for i, name in enumerate(PROFILE_NAMES):
+            display = PROFILE_DISPLAY.get(name, name.title())
+            profile_list.append([display])
+            if name == user_cfg.get("profile", "auto"):
+                active_index = i
+        profile_selector.set_model(profile_list)
+        cell_renderer = Gtk.CellRendererText()
+        profile_selector.pack_start(cell_renderer, True)
+        profile_selector.add_attribute(cell_renderer, "text", 0)
+        profile_selector.set_active(active_index)
+        profile_selector.connect("changed", profile_selection)
+        profile_selector.set_sensitive(not READ_ONLY)  # Disabled in read-only mode
+        profile_selector.set_property("width-request", 80)
+        profile_selector.set_property("height-request", 35)
+        fixed.put(profile_selector, 160, 10)
+        fixed.add(profile_selector)
 
-		label_maker("Select a fan profile", 10, 10, 0.0, fixed)                                                                 # Fan Profile
-		label_maker("CURRENT", 60, 50, 0.0, fixed)                                                                              # Current
-		label_maker("MIN", 140, 50, 0.0, fixed)                                                                                 # Minimum
-		label_maker("MAX", 190, 50, 0.0, fixed)                                                                                 # Maximum
-		label_maker("FAN RPM", 240, 50, 0.0, fixed)                                                                             # Fan RPM
-		label_maker("CPU", 10, 80, 0.0, fixed)                                                                                  # CPU
-		label_maker("GPU", 10, 110, 0.0, fixed)                                                                                 # GPU
+        # --- Header labels ---
+        label_maker("Select a fan profile", 10, 10, 0.0, fixed)
+        label_maker("CURRENT", 60, 50, 0.0, fixed)
+        label_maker("MIN", 140, 50, 0.0, fixed)
+        label_maker("MAX", 190, 50, 0.0, fixed)
+        label_maker("FAN RPM", 240, 50, 0.0, fixed)
+        label_maker("CPU", 10, 80, 0.0, fixed)
+        if model.has_gpu:
+            label_maker("GPU", 10, 110, 0.0, fixed)
 
-		self.CPU_CURR_TEMP = Gtk.Label()
-		self.CPU_CURR_TEMP.set_property("width-request", 80)
-		self.CPU_CURR_TEMP.set_property("height-request", 35)
-		self.CPU_CURR_TEMP.set_property("visible", True)
-		self.CPU_CURR_TEMP.set_property("can-focus", False)
-		self.CPU_CURR_TEMP.set_property("halign", Gtk.Align.CENTER)
-		self.CPU_CURR_TEMP.set_property("valign", Gtk.Align.CENTER)
-		self.CPU_CURR_TEMP.set_xalign(0.35)
-		self.CPU_CURR_TEMP.set_property("margin-left", 0)
-		self.CPU_CURR_TEMP.set_property("margin-right", 10)
-		self.CPU_CURR_TEMP.set_label(str(read(config.CPU_GPU_TEMP_ADDRESS[0], 1, 0)))
-		CPU_CURR_TEMP_STYLE = self.CPU_CURR_TEMP.get_style_context()
-		CPU_CURR_TEMP_STYLE.add_provider(css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
-		fixed.put(self.CPU_CURR_TEMP, 60, 80)
-		fixed.add(self.CPU_CURR_TEMP)
+        # --- CPU data labels ---
+        self.CPU_CURR_TEMP = make_data_label(css_provider)
+        self.CPU_CURR_TEMP.set_label(str(safe_read_byte(model.cpu_temp_addr)))
+        fixed.put(self.CPU_CURR_TEMP, 60, 80)
+        fixed.add(self.CPU_CURR_TEMP)
 
-		self.CPU_MIN_TEMP = Gtk.Label()
-		self.CPU_MIN_TEMP.set_property("width-request", 80)
-		self.CPU_MIN_TEMP.set_property("height-request", 35)
-		self.CPU_MIN_TEMP.set_property("visible", True)
-		self.CPU_MIN_TEMP.set_property("can-focus", False)
-		self.CPU_MIN_TEMP.set_property("halign", Gtk.Align.CENTER)
-		self.CPU_MIN_TEMP.set_property("valign", Gtk.Align.CENTER)
-		self.CPU_MIN_TEMP.set_xalign(0.05)
-		self.CPU_MIN_TEMP.set_property("margin-left", 0)
-		self.CPU_MIN_TEMP.set_property("margin-right", 10)
-		CPU_MIN_TEMP_STYLE = self.CPU_MIN_TEMP.get_style_context()
-		CPU_MIN_TEMP_STYLE.add_provider(css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
-		fixed.put(self.CPU_MIN_TEMP, 140, 80)
-		fixed.add(self.CPU_MIN_TEMP)
+        self.CPU_MIN_TEMP = make_data_label(css_provider)
+        self.CPU_MIN_TEMP.set_xalign(0.05)
+        fixed.put(self.CPU_MIN_TEMP, 140, 80)
+        fixed.add(self.CPU_MIN_TEMP)
 
-		self.CPU_MAX_TEMP = Gtk.Label()
-		self.CPU_MAX_TEMP.set_property("width-request", 80)
-		self.CPU_MAX_TEMP.set_property("height-request", 35)
-		self.CPU_MAX_TEMP.set_property("visible", True)
-		self.CPU_MAX_TEMP.set_property("can-focus", False)
-		self.CPU_MAX_TEMP.set_property("halign", Gtk.Align.CENTER)
-		self.CPU_MAX_TEMP.set_property("valign", Gtk.Align.CENTER)
-		self.CPU_MAX_TEMP.set_xalign(0.05)
-		self.CPU_MAX_TEMP.set_property("margin-left", 0)
-		self.CPU_MAX_TEMP.set_property("margin-right", 10)
-		CPU_MAX_TEMP_STYLE = self.CPU_MAX_TEMP.get_style_context()
-		CPU_MAX_TEMP_STYLE.add_provider(css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
-		fixed.put(self.CPU_MAX_TEMP, 190, 80)
-		fixed.add(self.CPU_MAX_TEMP)
+        self.CPU_MAX_TEMP = make_data_label(css_provider)
+        self.CPU_MAX_TEMP.set_xalign(0.05)
+        fixed.put(self.CPU_MAX_TEMP, 190, 80)
+        fixed.add(self.CPU_MAX_TEMP)
 
-		self.CPU_FAN_RPM = Gtk.Label()
-		self.CPU_FAN_RPM.set_property("width-request", 80)
-		self.CPU_FAN_RPM.set_property("height-request", 35)
-		self.CPU_FAN_RPM.set_property("visible", True)
-		self.CPU_FAN_RPM.set_property("can-focus", False)
-		self.CPU_FAN_RPM.set_property("halign", Gtk.Align.CENTER)
-		self.CPU_FAN_RPM.set_property("valign", Gtk.Align.CENTER)
-		self.CPU_FAN_RPM.set_xalign(0.3)
-		self.CPU_FAN_RPM.set_property("margin-left", 0)
-		self.CPU_FAN_RPM.set_property("margin-right", 10)
-		self.CPU_FAN_RPM.set_label("0" if read(config.CPU_GPU_RPM_ADDRESS[0], 2, 0) == 0 else str(478000//read(config.CPU_GPU_RPM_ADDRESS[0], 2, 0)))
-		CPU_FAN_RPM_STYLE = self.CPU_FAN_RPM.get_style_context()
-		CPU_FAN_RPM_STYLE.add_provider(css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
-		fixed.put(self.CPU_FAN_RPM, 240, 80)
-		fixed.add(self.CPU_FAN_RPM)
+        self.CPU_FAN_RPM = make_data_label(css_provider)
+        self.CPU_FAN_RPM.set_xalign(0.3)
+        self.CPU_FAN_RPM.set_label(str(safe_read_rpm(model.cpu_fan_rpm_addr)))
+        fixed.put(self.CPU_FAN_RPM, 240, 80)
+        fixed.add(self.CPU_FAN_RPM)
 
-		self.GPU_CURR_TEMP = Gtk.Label()
-		self.GPU_CURR_TEMP.set_property("width-request", 80)
-		self.GPU_CURR_TEMP.set_property("height-request", 35)
-		self.GPU_CURR_TEMP.set_property("visible", True)
-		self.GPU_CURR_TEMP.set_property("can-focus", False)
-		self.GPU_CURR_TEMP.set_property("halign", Gtk.Align.CENTER)
-		self.GPU_CURR_TEMP.set_property("valign", Gtk.Align.CENTER)
-		self.GPU_CURR_TEMP.set_xalign(0.35)
-		self.GPU_CURR_TEMP.set_property("margin-left", 0)
-		self.GPU_CURR_TEMP.set_property("margin-right", 10)
-		self.GPU_CURR_TEMP.set_label(str(read(config.CPU_GPU_TEMP_ADDRESS[1], 1, 0)))
-		GPU_CURR_TEMP_STYLE = self.GPU_CURR_TEMP.get_style_context()
-		GPU_CURR_TEMP_STYLE.add_provider(css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
-		fixed.put(self.GPU_CURR_TEMP, 60, 110)
-		fixed.add(self.GPU_CURR_TEMP)
+        # --- GPU data labels (only if model has GPU) ---
+        if model.has_gpu:
+            self.GPU_CURR_TEMP = make_data_label(css_provider)
+            self.GPU_CURR_TEMP.set_label(str(safe_read_byte(model.gpu_temp_addr)))
+            fixed.put(self.GPU_CURR_TEMP, 60, 110)
+            fixed.add(self.GPU_CURR_TEMP)
 
-		self.GPU_MIN_TEMP = Gtk.Label()
-		self.GPU_MIN_TEMP.set_property("width-request", 80)
-		self.GPU_MIN_TEMP.set_property("height-request", 35)
-		self.GPU_MIN_TEMP.set_property("visible", True)
-		self.GPU_MIN_TEMP.set_property("can-focus", False)
-		self.GPU_MIN_TEMP.set_property("halign", Gtk.Align.CENTER)
-		self.GPU_MIN_TEMP.set_property("valign", Gtk.Align.CENTER)
-		self.GPU_MIN_TEMP.set_xalign(0.05)
-		self.GPU_MIN_TEMP.set_property("margin-left", 0)
-		self.GPU_MIN_TEMP.set_property("margin-right", 10)
-		GPU_MIN_TEMP_STYLE = self.GPU_MIN_TEMP.get_style_context()
-		GPU_MIN_TEMP_STYLE.add_provider(css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
-		fixed.put(self.GPU_MIN_TEMP, 140, 110)
-		fixed.add(self.GPU_MIN_TEMP)
+            self.GPU_MIN_TEMP = make_data_label(css_provider)
+            self.GPU_MIN_TEMP.set_xalign(0.05)
+            fixed.put(self.GPU_MIN_TEMP, 140, 110)
+            fixed.add(self.GPU_MIN_TEMP)
 
-		self.GPU_MAX_TEMP = Gtk.Label()
-		self.GPU_MAX_TEMP.set_property("width-request", 80)
-		self.GPU_MAX_TEMP.set_property("height-request", 35)
-		self.GPU_MAX_TEMP.set_property("visible", True)
-		self.GPU_MAX_TEMP.set_property("can-focus", False)
-		self.GPU_MAX_TEMP.set_property("halign", Gtk.Align.CENTER)
-		self.GPU_MAX_TEMP.set_property("valign", Gtk.Align.CENTER)
-		self.GPU_MAX_TEMP.set_xalign(0.05)
-		self.GPU_MAX_TEMP.set_property("margin-left", 0)
-		self.GPU_MAX_TEMP.set_property("margin-right", 10)
-		GPU_MAX_TEMP_STYLE = self.GPU_MAX_TEMP.get_style_context()
-		GPU_MAX_TEMP_STYLE.add_provider(css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
-		fixed.put(self.GPU_MAX_TEMP, 190, 110)
-		fixed.add(self.GPU_MAX_TEMP)
+            self.GPU_MAX_TEMP = make_data_label(css_provider)
+            self.GPU_MAX_TEMP.set_xalign(0.05)
+            fixed.put(self.GPU_MAX_TEMP, 190, 110)
+            fixed.add(self.GPU_MAX_TEMP)
 
-		self.GPU_FAN_RPM = Gtk.Label()
-		self.GPU_FAN_RPM.set_property("width-request", 80)
-		self.GPU_FAN_RPM.set_property("height-request", 35)
-		self.GPU_FAN_RPM.set_property("visible", True)
-		self.GPU_FAN_RPM.set_property("can-focus", False)
-		self.GPU_FAN_RPM.set_property("halign", Gtk.Align.CENTER)
-		self.GPU_FAN_RPM.set_property("valign", Gtk.Align.CENTER)
-		self.GPU_FAN_RPM.set_xalign(0.3)
-		self.GPU_FAN_RPM.set_property("margin-left", 0)
-		self.GPU_FAN_RPM.set_property("margin-right", 10)
-		self.GPU_FAN_RPM.set_label("0" if read(config.CPU_GPU_RPM_ADDRESS[1], 2, 0) == 0 else str(478000//read(config.CPU_GPU_RPM_ADDRESS[1], 2, 0)))
-		GPU_FAN_RPM_STYLE = self.GPU_FAN_RPM.get_style_context()
-		GPU_FAN_RPM_STYLE.add_provider(css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
-		fixed.put(self.GPU_FAN_RPM, 240, 110)
-		fixed.add(self.GPU_FAN_RPM)
+            self.GPU_FAN_RPM = make_data_label(css_provider)
+            self.GPU_FAN_RPM.set_xalign(0.3)
+            self.GPU_FAN_RPM.set_label(str(safe_read_rpm(model.gpu_fan_rpm_addr)))
+            fixed.put(self.GPU_FAN_RPM, 240, 110)
+            fixed.add(self.GPU_FAN_RPM)
 
-		timer_id = GLib.timeout_add(500, update_label)
+        # --- Timer for updates ---
+        GLib.timeout_add(500, update_label)
 
-		label_maker("Battery charge threshold", 10, 150, 0.0, fixed)                                                                 # Fan Profile
+        # --- Battery charge threshold selector ---
+        bct_y = 110 if not model.has_gpu else 150
+        if model.battery_threshold_addr is not None:
+            label_maker("Battery charge threshold", 10, bct_y, 0.0, fixed)
 
-		bct_selector = Gtk.ComboBox()
-		bct_list = Gtk.ListStore(str)
-		for bct_values in range (50, 101, 5):
-			bct_list.append([str(bct_values)])
-		bct_selector.set_model(bct_list)
-		bct_renderer = Gtk.CellRendererText()
-		bct_selector.pack_start(bct_renderer, True)
-		bct_selector.add_attribute(bct_renderer, "text", 0)
-		model = bct_selector.get_model()
-		for index, row in enumerate(model):
-			if row[0] == str(config.BATTERY_THRESHOLD_VALUE):
-				bct_selector.set_active(index)
-				break
-		bct_selector.connect("changed", bct_selection)
-		bct_selector.set_property("width-request", 80)
-		bct_selector.set_property("height-request", 35)
-		fixed.put(bct_selector, 200, 150)
-		fixed.add(bct_selector)
+            bct_selector = Gtk.ComboBox()
+            bct_list = Gtk.ListStore(str)
+            for val in range(50, 101, 5):
+                bct_list.append([str(val)])
+            bct_selector.set_model(bct_list)
+            bct_renderer = Gtk.CellRendererText()
+            bct_selector.pack_start(bct_renderer, True)
+            bct_selector.add_attribute(bct_renderer, "text", 0)
+            # Set active to match current config
+            bct_model = bct_selector.get_model()
+            for index, row in enumerate(bct_model):
+                if row[0] == str(user_cfg.get("battery_threshold", 100)):
+                    bct_selector.set_active(index)
+                    break
+            bct_selector.connect("changed", bct_selection)
+            bct_selector.set_sensitive(not READ_ONLY)  # Disabled in read-only mode
+            bct_selector.set_property("width-request", 80)
+            bct_selector.set_property("height-request", 35)
+            fixed.put(bct_selector, 200, bct_y)
+            fixed.add(bct_selector)
+
 
 parent_window = ParentWindow()
 parent_window.connect("destroy", Gtk.main_quit)
 parent_window.show_all()
 Gtk.main()
 
+# Cleanup
+ec.close()

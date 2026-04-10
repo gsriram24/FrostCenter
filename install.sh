@@ -1,124 +1,93 @@
 #!/bin/bash
+set -e
 
-FLAG_1=0
-FLAG_2=0
-FLAG_3=0
+# OpenFreezeCenter for Bazzite - Installer
+# Uses /dev/port for EC access (no kernel modules needed)
 
-##############################################################################################
-# Moving files to desktop and making virtual environment and installing all the dependencies #
-##############################################################################################
+INSTALL_DIR="$HOME/.local/share/ofc"
+BIN_DIR="$HOME/.local/bin"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-if test -f ~/Desktop/OFC/OFC.py;
-then
-    FLAG_3=1
+echo "=== OpenFreezeCenter for Bazzite ==="
+echo ""
+
+# Check for MSI laptop
+VENDOR=$(cat /sys/class/dmi/id/sys_vendor 2>/dev/null || echo "unknown")
+if ! echo "$VENDOR" | grep -qi "micro-star"; then
+    echo "WARNING: This does not appear to be an MSI laptop."
+    echo "  Vendor: $VENDOR"
+    read -p "Continue anyway? [y/N] " -n 1 -r
+    echo
+    [[ $REPLY =~ ^[Yy]$ ]] || exit 1
+fi
+
+# Show detected model
+BOARD=$(cat /sys/class/dmi/id/board_name 2>/dev/null || echo "unknown")
+PRODUCT=$(cat /sys/class/dmi/id/product_name 2>/dev/null || echo "unknown")
+echo "Detected: $PRODUCT ($BOARD)"
+
+# Check /dev/port access
+if [ ! -c /dev/port ]; then
+    echo ""
+    echo "ERROR: /dev/port not found."
+    echo "This may happen if Secure Boot is enabled (kernel lockdown blocks port I/O)."
+    echo "Check: cat /sys/kernel/security/lockdown"
+    exit 1
+fi
+
+# Check Python3 + PyGObject
+echo ""
+echo "Checking dependencies..."
+if python3 -c "import gi; gi.require_version('Gtk','3.0'); from gi.repository import Gtk" 2>/dev/null; then
+    echo "  Python3 + PyGObject: OK"
 else
-    echo "This is a shell script to install all the dependencies required for this software to run."
-    echo "Dependencies required are as follows."
-    echo "1 -> python3-virtualenv AND python3-venv"
-    echo "2 -> PyGObject" 
-    echo "3 -> PyCairo" 
-    echo "4 -> Expert" 
-    echo "----------Creating Folder for Open Freeze Center----------"
-    cd ~/Desktop
-    mkdir OFC
-    echo "----------Installing python3-virtualenv AND python3-venv and other dependencies----------"
-    sudo apt update
-    sudo apt upgrade
-    sudo apt install python3-virtualenv python3-venv libgirepository1.0-dev libcairo2-dev
-    echo "----------Creating Virtual Environment for Open Freeze Center----------"
-    python3 -m venv ~/Desktop/OFC
-    echo "----------Virtual Environment for Open Freeze Center created----------"
-    echo "----------Installing PyGObject----------"
-    ~/Desktop/OFC/bin/pip3 install PyGObject
-    echo "----------Installing PyCairo----------"
-    ~/Desktop/OFC/bin/pip3 install pycairo
-    echo "----------Installing Expert----------"
-    sudo apt-get install expect
-    echo "----------Moving files to virtual environment----------"
-    cp -i ~/Downloads/OpenFreezeCenter-5/install.sh  ~/Desktop/OFC
-    cp -i ~/Downloads/OpenFreezeCenter-5/file_1.sh  ~/Desktop/OFC
-    cp -i ~/Downloads/OpenFreezeCenter-5/file_2.sh  ~/Desktop/OFC
-    cp -i ~/Downloads/OpenFreezeCenter-5/OFC.py  ~/Desktop/OFC
-    cp -i ~/Downloads/OpenFreezeCenter-5/README.md  ~/Desktop/OFC
-    cp -i ~/Downloads/OpenFreezeCenter-5/LICENSE  ~/Desktop/OFC
-    FLAG_3=1
+    echo "  Python3 + PyGObject: NOT FOUND"
+    echo ""
+    echo "  On Bazzite, try:"
+    echo "    rpm-ostree install python3-gobject gtk3"
+    echo "  then reboot and re-run this installer."
+    exit 1
 fi
 
-################################
-# Prepairing the EC read/write #
-################################
+# Install files
+echo ""
+echo "Installing to $INSTALL_DIR ..."
+mkdir -p "$INSTALL_DIR/models"
 
-if test -d /etc/modprobe.d;
-then
-    if test -f /etc/modprobe.d/ec_sys.conf;
-    then
-        if grep -q "options ec_sys write_support=1" "/etc/modprobe.d/ec_sys.conf";
-        then FLAG_1=1
-        else
-            echo "----------Prepairing system for EC read/write----------"
-            cd ~/Desktop/OFC/
-            sudo ./file_1.sh
-            FLAG_1=1
-        fi
-    else
-        echo "----------Prepairing system for EC read/write----------"
-        sudo touch /etc/modprobe.d/ec_sys.conf
-        cd ~/Desktop/OFC/
-        sudo ./file_1.sh
-        FLAG_1=1
-    fi
-else
-    echo "----------Prepairing system for EC read/write----------"
-    mkdir /etc/modprobe.d
-    sudo touch /etc/modprobe.d/ec_sys.conf
-    cd ~/Desktop/OFC/
-    sudo ./file_1.sh
-    FLAG_1=1
+cp "$SCRIPT_DIR/OFC.py" "$INSTALL_DIR/"
+cp "$SCRIPT_DIR/ec_access.py" "$INSTALL_DIR/"
+cp "$SCRIPT_DIR/model_config.py" "$INSTALL_DIR/"
+cp "$SCRIPT_DIR/models/database.json" "$INSTALL_DIR/models/"
+if [ -f "$SCRIPT_DIR/LICENSE" ]; then
+    cp "$SCRIPT_DIR/LICENSE" "$INSTALL_DIR/"
 fi
 
-if test -d /etc/modules-load.d;
-then
-    if test -f /etc/modules-load.d/ec_sys.conf;
-    then
-        if grep -q "ec_sys" "/etc/modules-load.d/ec_sys.conf";
-        then FLAG_2=1
-        else
-            echo "----------Prepairing system for EC read/write----------"
-            cd ~/Desktop/OFC/
-            sudo ./file_2.sh
-            FLAG_2=1
-        fi
-    else
-        echo "----------Prepairing system for EC read/write----------"
-        sudo touch /etc/modules-load.d/ec_sys.conf
-        cd ~/Desktop/OFC/
-        sudo ./file_2.sh
-        FLAG_2=1
-    fi
-else
-    echo "----------Prepairing system for EC read/write----------"
-    mkdir /etc/modules-load.d
-    sudo touch /etc/modules-load.d/ec_sys.conf
-    cd ~/Desktop/OFC/
-    sudo ./file_2.sh
-    FLAG_2=1
+echo "  Files copied."
+
+# Create launcher script
+mkdir -p "$BIN_DIR"
+cat > "$BIN_DIR/ofc" << 'LAUNCHER'
+#!/bin/bash
+# OpenFreezeCenter launcher (requires root for /dev/port access)
+OFC_DIR="$HOME/.local/share/ofc"
+exec sudo python3 "$OFC_DIR/OFC.py" "$@"
+LAUNCHER
+chmod +x "$BIN_DIR/ofc"
+
+echo "  Launcher created at $BIN_DIR/ofc"
+
+# Check if ~/.local/bin is in PATH
+if ! echo "$PATH" | grep -q "$HOME/.local/bin"; then
+    echo ""
+    echo "  NOTE: $BIN_DIR is not in your PATH."
+    echo "  Add this to your ~/.bashrc or ~/.zshrc:"
+    echo "    export PATH=\"\$HOME/.local/bin:\$PATH\""
 fi
 
-if [ "$FLAG_1" -eq 1 ] && [ "$FLAG_2" -eq 1 ];
-then
-    echo "----------EC read/write is enabled----------"
-else
-    echo "----------EC read/write is can not be enabled----------"
-fi
-
-if [ "$FLAG_3" -eq 1 ];
-then
-    if test -f ~/Desktop/OFC/config.py;
-    then
-        echo "----------Running Software----------"
-        sudo nohup ~/Desktop/OFC/bin/python3 ~/Desktop/OFC/OFC.py
-    else
-        echo "----------Running Software----------"
-        sudo nohup ~/Desktop/OFC/bin/python3 ~/Desktop/OFC/OFC.py
-    fi
-fi
+echo ""
+echo "=== Installation complete ==="
+echo ""
+echo "To run: ofc"
+echo "  (or: sudo python3 $INSTALL_DIR/OFC.py)"
+echo ""
+echo "Model: $PRODUCT ($BOARD)"

@@ -1,0 +1,2056 @@
+{
+  "_version": 1,
+  "_comment": "MSI laptop EC register database. Sources: msi-ec kernel module, isw project.",
+  "_common": {
+    "cooler_boost_addr": "0x98",
+    "cooler_boost_bit": 7,
+    "cpu_fan_curve_speeds": [
+      "0x72",
+      "0x73",
+      "0x74",
+      "0x75",
+      "0x76",
+      "0x77",
+      "0x78"
+    ],
+    "cpu_fan_curve_temps": [
+      "0x6a",
+      "0x6b",
+      "0x6c",
+      "0x6d",
+      "0x6e",
+      "0x6f"
+    ],
+    "cpu_fan_speed_pct": "0x71",
+    "cpu_temp": "0x68",
+    "gpu_fan_curve_speeds": [
+      "0x8a",
+      "0x8b",
+      "0x8c",
+      "0x8d",
+      "0x8e",
+      "0x8f",
+      "0x90"
+    ],
+    "gpu_fan_curve_temps": [
+      "0x82",
+      "0x83",
+      "0x84",
+      "0x85",
+      "0x86",
+      "0x87"
+    ],
+    "gpu_fan_speed_pct": "0x89",
+    "gpu_temp": "0x80"
+  },
+  "boards": {
+    "MS-13P3": {
+      "group": "G2_3",
+      "name": "Summit E13 Flip A12MT"
+    },
+    "MS-13P5": {
+      "group": "G2_3",
+      "name": "Summit 13 AI+ Evo A2VM"
+    },
+    "MS-13Q2": {
+      "group": "G2_3",
+      "name": "Prestige 13 AI Evo A1MG"
+    },
+    "MS-13Q3": {
+      "group": "G2_3",
+      "name": "Prestige 13 AI+ Evo A2VMG"
+    },
+    "MS-14C1": {
+      "group": "G1_0",
+      "name": "Prestige 14 A10SC"
+    },
+    "MS-14C4": {
+      "group": "G2_1",
+      "name": "Prestige 14 A11SCX"
+    },
+    "MS-14C6": {
+      "group": "G2_1",
+      "name": "Prestige 14 Evo A12M"
+    },
+    "MS-14D1": {
+      "group": "G1_6",
+      "name": "Modern 14 B10MW"
+    },
+    "MS-14D2": {
+      "group": "G2_0",
+      "name": "Modern 14 B11M"
+    },
+    "MS-14D3": {
+      "group": "G2_0",
+      "name": "Modern 14 B11MOU"
+    },
+    "MS-14DK": {
+      "group": "G1_6",
+      "name": "Modern 14 B4MW"
+    },
+    "MS-14DL": {
+      "group": "G1_6",
+      "name": "Modern 14 B5M"
+    },
+    "MS-14F1": {
+      "group": "G2_3",
+      "name": "Summit E14 Flip Evo A12MT / Summit E14 Evo A12M / Prestige 14 Evo B13M / Summit E14 Flip Evo A13MT"
+    },
+    "MS-14J1": {
+      "group": "G2_3",
+      "name": "Modern 14 C12M"
+    },
+    "MS-14JK": {
+      "group": "G1_5",
+      "name": "Modern 14 C5M / Modern 14 C7M"
+    },
+    "MS-14K1": {
+      "group": "G2_5",
+      "name": "Stealth 14 Studio A13VF"
+    },
+    "MS-14K2": {
+      "group": "G2_5",
+      "name": "Stealth 14 AI Studio A1VGG / A1VFG"
+    },
+    "MS-14L1": {
+      "group": "G2_3",
+      "name": "Modern 14 H D13M"
+    },
+    "MS-14N1": {
+      "group": "G2_3",
+      "name": "Prestige 14 AI Evo C1MG / Prestige 14 AI Evo C2HMG"
+    },
+    "MS-14N2": {
+      "group": "G2_4",
+      "name": "Prestige 14 AI Studio C1UDXG"
+    },
+    "MS-14P1": {
+      "group": "G2_4",
+      "name": "Cyborg 14 A13VF"
+    },
+    "MS-14QK": {
+      "group": "G2_3",
+      "name": "Venture A14 AI+ A3HMG"
+    },
+    "MS-1541": {
+      "group": "G1_3",
+      "name": "GE66 Raider 10SF"
+    },
+    "MS-1542": {
+      "group": "G1_3",
+      "name": "GP66 Leopard 10UG / 10UE / 10UH"
+    },
+    "MS-1543": {
+      "group": "G2_2",
+      "name": "GP66 Leopard 11UG / GE66 Raider 11UE"
+    },
+    "MS-1544": {
+      "group": "G2_2",
+      "name": "Vector GP66 12UGS"
+    },
+    "MS-1545": {
+      "group": "G2_2",
+      "name": "Raider GE67 HX 12U"
+    },
+    "MS-1551": {
+      "group": "G1_5",
+      "name": "Modern 15 A10M"
+    },
+    "MS-1552": {
+      "group": "G2_0",
+      "name": "Modern 15 A11M"
+    },
+    "MS-155L": {
+      "group": "G1_6",
+      "name": "Modern 15 A5M"
+    },
+    "MS-1562": {
+      "group": "G2_10",
+      "name": "Stealth 15M A11SEK"
+    },
+    "MS-1563": {
+      "group": "G2_10",
+      "name": "Stealth 15M A11UEK"
+    },
+    "MS-1571": {
+      "group": "G2_10",
+      "name": "Creator Z16 A11UE"
+    },
+    "MS-1572": {
+      "group": "G2_10",
+      "name": "Creator Z16 A12U"
+    },
+    "MS-1581": {
+      "group": "G2_1",
+      "name": "Katana GF66 11UE / 11UG"
+    },
+    "MS-1582": {
+      "group": "G2_1",
+      "name": "Pulse GL66 11UDK / Katana GF66 11UC / 11UD"
+    },
+    "MS-1583": {
+      "group": "G2_1",
+      "name": "Crosshair 15 B12UEZ / B12UGSZ / Pulse  GL66 12UGK / Katana GF66 12UG"
+    },
+    "MS-1584": {
+      "group": "G2_1",
+      "name": "Katana GF66 12U(C/D) (ENE) / Katana GF66 12UDO (ITE) (#467)"
+    },
+    "MS-1585": {
+      "group": "G2_1",
+      "name": "Creator M16 B13VF / Katana 15 B13VGK / Pulse 15 B13VGK / Katana 15 B12VFK / B12VGK"
+    },
+    "MS-1587": {
+      "group": "G2_10",
+      "name": "Katana 15 HX B14WEK"
+    },
+    "MS-158K": {
+      "group": "G1_11",
+      "name": "Bravo 15 B5DD"
+    },
+    "MS-158L": {
+      "group": "G1_2",
+      "name": "Alpha 15 B5EE / B5EEK"
+    },
+    "MS-158M": {
+      "group": "G1_11",
+      "name": "Bravo 15 B5ED"
+    },
+    "MS-158N": {
+      "group": "G2_1",
+      "name": "Bravo 15 C7V / Bravo 15 C7UCX / Bravo 15 C7VFKP / Katana A15 AI B8V"
+    },
+    "MS-158P": {
+      "group": "G2_1",
+      "name": "Bravo 15 B7ED / Bravo 15 B7E"
+    },
+    "MS-1591": {
+      "group": "G2_1",
+      "name": "Summit E16 Flip A11UCT"
+    },
+    "MS-1592": {
+      "group": "G2_1",
+      "name": "Summit E16 Flip A12UCT / A12MT"
+    },
+    "MS-1594": {
+      "group": "G2_1",
+      "name": "Prestige 16 Studio A13VE"
+    },
+    "MS-1596": {
+      "group": "G2_1",
+      "name": "Summit E16 AI Studio A1VETG"
+    },
+    "MS-159K": {
+      "group": "G2_0",
+      "name": "Prestige A16 AI+ A3HMG / Summit A16 AI+ A3HMTG"
+    },
+    "MS-15CK": {
+      "group": "G1_2",
+      "name": "Delta 15 A5EFK"
+    },
+    "MS-15F2": {
+      "group": "G2_10",
+      "name": "Stealth 16 Studio A13VG"
+    },
+    "MS-15F3": {
+      "group": "G2_10",
+      "name": "Stealth 16 AI Studio A1VHG"
+    },
+    "MS-15F4": {
+      "group": "G2_10",
+      "name": "Stealth 16 AI Studio A1VFG"
+    },
+    "MS-15FK": {
+      "group": "G2_10",
+      "name": "Stealth A16 AI+ A3XVFG / A3XVGG / Stealth A16 AI+ A3XVGG"
+    },
+    "MS-15FL": {
+      "group": "G2_10",
+      "name": "Stealth A16 AI+ A3XWHG"
+    },
+    "MS-15H1": {
+      "group": "G2_0",
+      "name": "Modern 15 B13M"
+    },
+    "MS-15H2": {
+      "group": "G2_1",
+      "name": "Modern 15 B12HW"
+    },
+    "MS-15H5": {
+      "group": "G2_0",
+      "name": "Modern 15 H AI C1MG"
+    },
+    "MS-15HK": {
+      "group": "G1_6",
+      "name": "Modern 15 B7M"
+    },
+    "MS-15K1": {
+      "group": "G2_1",
+      "name": "Cyborg 15 A12VF / Cyborg 15 A13VF / Cyborg 15 A13VFK"
+    },
+    "MS-15K2": {
+      "group": "G2_10",
+      "name": "Cyborg 15 AI A1VFK"
+    },
+    "MS-15M1": {
+      "group": "G2_10",
+      "name": "Vector GP68 HX 13V / Vector GP68 HX 12V / Raider GE68 HX 14VIG / Vector 16 HX A13V* / A14V*"
+    },
+    "MS-15M2": {
+      "group": "G2_10",
+      "name": "Raider GE68 HX 14VGG / Raider GE68HX 13V(F/G) / Vector GP68HX 13VF"
+    },
+    "MS-15M3": {
+      "group": "G2_10",
+      "name": "Vector 16 HX AI A2XWHG / A2XWIG"
+    },
+    "MS-15P2": {
+      "group": "G2_10",
+      "name": "Sword 16 HX B13V / B14V"
+    },
+    "MS-15P3": {
+      "group": "G2_10",
+      "name": "Pulse 16 AI C1VGKG/C1VFKG"
+    },
+    "MS-15P4": {
+      "group": "G2_10",
+      "name": "Crosshair 16 HX AI D2XW(GKG)"
+    },
+    "MS-16P5": {
+      "group": "G1_10",
+      "name": "GE63 Raider 8RE"
+    },
+    "MS-16Q2": {
+      "group": "G1_3",
+      "name": "GS65 Stealth Thin 8RE / 8RF"
+    },
+    "MS-16Q3": {
+      "group": "G1_3",
+      "name": "P65 Creator 8RE - single color kb bl, but 00 val"
+    },
+    "MS-16Q4": {
+      "group": "G1_3",
+      "name": "GS65 Stealth 8S / 9S(D/F)"
+    },
+    "MS-16R1": {
+      "group": "G1_7",
+      "name": "GF63 8RC-249"
+    },
+    "MS-16R3": {
+      "group": "G1_7",
+      "name": "GF63 Thin 9SC"
+    },
+    "MS-16R4": {
+      "group": "G1_7",
+      "name": "GF63 Thin 10SCX(R) / 10SCS(R) / GF63 Thin 9SCSR"
+    },
+    "MS-16R5": {
+      "group": "G1_7",
+      "name": "GF63 Thin 10U(C/D) / 10SC"
+    },
+    "MS-16R6": {
+      "group": "G2_6",
+      "name": "GF63 Thin 11UC / 11SC"
+    },
+    "MS-16R7": {
+      "group": "G2_6",
+      "name": "Thin GF63 12HW"
+    },
+    "MS-16R8": {
+      "group": "G2_6",
+      "name": "Thin GF63 12VE / Thin GF63 12UCX / Thin GF63 12V(E/F) / Thin GF63 12UC / Thin 15 B12UCX / B12VE"
+    },
+    "MS-16RK": {
+      "group": "G2_6",
+      "name": "Thin A15 B7VF"
+    },
+    "MS-16S1": {
+      "group": "G1_8",
+      "name": "PS63 MODERN 8RD"
+    },
+    "MS-16S3": {
+      "group": "G1_0",
+      "name": "Prestige 15 A10SC"
+    },
+    "MS-16S6": {
+      "group": "G2_1",
+      "name": "Prestige 15 A11SCX"
+    },
+    "MS-16S8": {
+      "group": "G2_1",
+      "name": "Prestige 15 A12SC / A12UC"
+    },
+    "MS-16U7": {
+      "group": "G1_1",
+      "name": "GP65 / GL65 Leopard 10S / GL65 Leopard 9SD"
+    },
+    "MS-16V1": {
+      "group": "G1_3",
+      "name": "GS66 Stealth 10SFS / GS66 Stealth 10SE"
+    },
+    "MS-16V2": {
+      "group": "G1_13",
+      "name": "Creator 15 A10SD / Creator 15 A10SET"
+    },
+    "MS-16V3": {
+      "group": "G1_3",
+      "name": "GS66 Stealth 10UE"
+    },
+    "MS-16V4": {
+      "group": "G2_2",
+      "name": "GS66 Stealth 11UE / 11UG"
+    },
+    "MS-16V5": {
+      "group": "G2_2",
+      "name": "Stealth GS66 12UE / 12UGS"
+    },
+    "MS-16V6": {
+      "group": "G2_1",
+      "name": "Stealth 15 A13V"
+    },
+    "MS-16W1": {
+      "group": "G1_7",
+      "name": "GF65 Thin 9SE(X(R)) / 9SD / GF65 Thin 10SCSXR / 10SD(R) / 10SE(R)"
+    },
+    "MS-16W2": {
+      "group": "G1_7",
+      "name": "GF65 Thin 10UE"
+    },
+    "MS-16WK": {
+      "group": "G1_8",
+      "name": "Bravo 15 A4DDR"
+    },
+    "MS-1782": {
+      "group": "G1_10",
+      "name": "GT72 6QE Dominator Pro"
+    },
+    "MS-17E7": {
+      "group": "G1_1",
+      "name": "GP75 Leopard 10SEK / GL75 Leopard 10SFR"
+    },
+    "MS-17E8": {
+      "group": "G1_1",
+      "name": "GL75 Leopard 10SCXR"
+    },
+    "MS-17F2": {
+      "group": "G1_1",
+      "name": "GF75 Thin 9SC"
+    },
+    "MS-17F3": {
+      "group": "G1_1",
+      "name": "GF75 Thin 9S(D/E) / GF75 Thin 10SER"
+    },
+    "MS-17F4": {
+      "group": "G1_1",
+      "name": "GF75 Thin 9SCSR"
+    },
+    "MS-17F5": {
+      "group": "G1_1",
+      "name": "GF75 Thin 10UEK"
+    },
+    "MS-17F6": {
+      "group": "G1_1",
+      "name": "GF75 Thin 10UC / 10UD / 10SC"
+    },
+    "MS-17FK": {
+      "group": "G1_4",
+      "name": "Bravo 17 A4DDR / A4DDK"
+    },
+    "MS-17G1": {
+      "group": "G1_9",
+      "name": "P75  CREATOR 9SG / GS75 Stealth 8SF / GS75 Stealth 9SF"
+    },
+    "MS-17G3": {
+      "group": "G1_9",
+      "name": "GS75 Stealth 10SF"
+    },
+    "MS-17K3": {
+      "group": "G2_2",
+      "name": "GE76 Raider 11U / 11UH / GE76 Raider 11UE / GP76 Leopard 11UG"
+    },
+    "MS-17K4": {
+      "group": "G2_2",
+      "name": "Raider GE76 12UE / Raider GE76 12UGS / Vector GP76 12UH"
+    },
+    "MS-17K5": {
+      "group": "G2_2",
+      "name": "Raider GE77 HX 12UGS"
+    },
+    "MS-17KK": {
+      "group": "G2_2",
+      "name": "Alpha 17 C7VF / C7VG"
+    },
+    "MS-17L1": {
+      "group": "G2_1",
+      "name": "Katana GF76 11UE / Crosshair 17 A11UEK / Katana GF76 11UG"
+    },
+    "MS-17L2": {
+      "group": "G2_1",
+      "name": "Katana GF76 11UC / 11UD / Katana 17 B11UCX"
+    },
+    "MS-17L3": {
+      "group": "G2_1",
+      "name": "Crosshair 17 B12UGZ / Katana GF76 12UG"
+    },
+    "MS-17L4": {
+      "group": "G2_1",
+      "name": "Katana GF76 12UC"
+    },
+    "MS-17L5": {
+      "group": "G2_10",
+      "name": "Pulse/Katana 17 B13V/GK / Katana 17 B12VEK"
+    },
+    "MS-17L7": {
+      "group": "G2_10",
+      "name": "Katana 17 HX B14WGK"
+    },
+    "MS-17LL": {
+      "group": "G1_2",
+      "name": "Alpha 17 B5EEK"
+    },
+    "MS-17LN": {
+      "group": "G2_1",
+      "name": "Bravo 17 C7VE / Katana A17 AI B8VF"
+    },
+    "MS-17M1": {
+      "group": "G2_1",
+      "name": "Creator 17 B11UE / Stealth GS76 11UG"
+    },
+    "MS-17N1": {
+      "group": "G2_10",
+      "name": "Creator Z17 A12UGST"
+    },
+    "MS-17P1": {
+      "group": "G2_10",
+      "name": "Stealth GS77 12U(E/GS)"
+    },
+    "MS-17P2": {
+      "group": "G2_10",
+      "name": "Stealth 17 Studio A13VI"
+    },
+    "MS-17Q2": {
+      "group": "G2_10",
+      "name": "Titan GT77HX 13VH"
+    },
+    "MS-17S1": {
+      "group": "G2_10",
+      "name": "Raider GE78HX 13VI / Raider GE78 HX 14VHG / Vector 17 HX A14V / Vector 17 HX A13VHG"
+    },
+    "MS-17S2": {
+      "group": "G2_10",
+      "name": "Raider GE78 HX Smart Touchpad 13V"
+    },
+    "MS-17S3": {
+      "group": "G2_10",
+      "name": "Vector 17 HX AI A2XWHG"
+    },
+    "MS-17T2": {
+      "group": "G2_10",
+      "name": "Sword 17 HX B14VGKG"
+    },
+    "MS-1822": {
+      "group": "G2_10",
+      "name": "Titan 18 HX A14V / WMI 2.8"
+    },
+    "MS-1824": {
+      "group": "G2_10",
+      "name": "Titan 18 HX Dragon Edition"
+    },
+    "MS-182K": {
+      "group": "G2_10",
+      "name": "Raider A18 HX A7VIG"
+    },
+    "MS-182L": {
+      "group": "G2_10",
+      "name": "Vector A18 HX A9WHG / New ec version for Vector A18 HX A9WHG"
+    }
+  },
+  "default_fan_curves": {
+    "MS-14A1": {
+      "cpu_speeds": [
+        0,
+        50,
+        60,
+        65,
+        70,
+        80,
+        85
+      ],
+      "cpu_temps": [
+        58,
+        63,
+        68,
+        73,
+        78,
+        83
+      ],
+      "gpu_speeds": [
+        0,
+        55,
+        65,
+        70,
+        80,
+        85,
+        90
+      ],
+      "gpu_temps": [
+        53,
+        58,
+        63,
+        68,
+        73,
+        83
+      ]
+    },
+    "MS-14A3": {
+      "cpu_speeds": [
+        0,
+        40,
+        48,
+        63,
+        70,
+        80,
+        85
+      ],
+      "cpu_temps": [
+        58,
+        63,
+        68,
+        73,
+        78,
+        83
+      ],
+      "gpu_speeds": [
+        0,
+        45,
+        63,
+        70,
+        80,
+        85,
+        90
+      ],
+      "gpu_temps": [
+        53,
+        58,
+        63,
+        68,
+        73,
+        83
+      ]
+    },
+    "MS-16F4": {
+      "cpu_speeds": [
+        32,
+        32,
+        35,
+        45,
+        50,
+        66,
+        76
+      ],
+      "cpu_temps": [
+        52,
+        64,
+        76,
+        88,
+        93,
+        95
+      ],
+      "gpu_speeds": [
+        32,
+        32,
+        42,
+        55,
+        66,
+        76,
+        100
+      ],
+      "gpu_temps": [
+        52,
+        64,
+        76,
+        87,
+        90,
+        95
+      ]
+    },
+    "MS-16J1": {
+      "cpu_speeds": [
+        0,
+        50,
+        56,
+        66,
+        76,
+        86,
+        86
+      ],
+      "cpu_temps": [
+        60,
+        65,
+        70,
+        75,
+        80,
+        80
+      ],
+      "gpu_speeds": [
+        0,
+        53,
+        60,
+        68,
+        76,
+        84,
+        84
+      ],
+      "gpu_temps": [
+        55,
+        60,
+        65,
+        70,
+        75,
+        75
+      ]
+    },
+    "MS-16J5": {
+      "cpu_speeds": [
+        47,
+        50,
+        56,
+        66,
+        76,
+        86,
+        86
+      ],
+      "cpu_temps": [
+        55,
+        61,
+        67,
+        73,
+        79,
+        79
+      ],
+      "gpu_speeds": [
+        0,
+        53,
+        57,
+        61,
+        65,
+        69,
+        69
+      ],
+      "gpu_temps": [
+        55,
+        60,
+        65,
+        70,
+        75,
+        75
+      ]
+    },
+    "MS-16J6": {
+      "cpu_speeds": [
+        47,
+        50,
+        56,
+        66,
+        76,
+        76,
+        76
+      ],
+      "cpu_temps": [
+        60,
+        65,
+        70,
+        75,
+        75,
+        75
+      ],
+      "gpu_speeds": [
+        0,
+        50,
+        56,
+        66,
+        76,
+        86,
+        86
+      ],
+      "gpu_temps": [
+        55,
+        60,
+        65,
+        70,
+        75,
+        75
+      ]
+    },
+    "MS-16J9": {
+      "cpu_speeds": [
+        40,
+        48,
+        56,
+        66,
+        76,
+        86,
+        86
+      ],
+      "cpu_temps": [
+        55,
+        61,
+        67,
+        73,
+        79,
+        79
+      ],
+      "gpu_speeds": [
+        0,
+        54,
+        62,
+        70,
+        78,
+        86,
+        86
+      ],
+      "gpu_temps": [
+        55,
+        60,
+        65,
+        70,
+        75,
+        75
+      ]
+    },
+    "MS-16JB": {
+      "cpu_speeds": [
+        40,
+        48,
+        56,
+        66,
+        76,
+        86,
+        86
+      ],
+      "cpu_temps": [
+        55,
+        61,
+        67,
+        73,
+        79,
+        79
+      ],
+      "gpu_speeds": [
+        0,
+        54,
+        62,
+        70,
+        78,
+        86,
+        86
+      ],
+      "gpu_temps": [
+        55,
+        60,
+        65,
+        70,
+        75,
+        75
+      ]
+    },
+    "MS-16JE": {
+      "cpu_speeds": [
+        40,
+        45,
+        51,
+        57,
+        63,
+        69,
+        75
+      ],
+      "cpu_temps": [
+        55,
+        61,
+        67,
+        73,
+        78,
+        83
+      ],
+      "gpu_speeds": [
+        0,
+        53,
+        59,
+        65,
+        73,
+        81,
+        89
+      ],
+      "gpu_temps": [
+        55,
+        60,
+        65,
+        70,
+        75,
+        80
+      ]
+    },
+    "MS-16JF": {
+      "cpu_speeds": [
+        40,
+        45,
+        51,
+        57,
+        63,
+        69,
+        75
+      ],
+      "cpu_temps": [
+        55,
+        61,
+        67,
+        73,
+        78,
+        83
+      ],
+      "gpu_speeds": [
+        0,
+        51,
+        55,
+        59,
+        63,
+        67,
+        71
+      ],
+      "gpu_temps": [
+        55,
+        60,
+        65,
+        70,
+        75,
+        80
+      ]
+    },
+    "MS-16K2": {
+      "cpu_speeds": [
+        30,
+        45,
+        54,
+        64,
+        70,
+        75,
+        85
+      ],
+      "cpu_temps": [
+        55,
+        61,
+        67,
+        73,
+        79,
+        85
+      ],
+      "gpu_speeds": [
+        0,
+        50,
+        60,
+        70,
+        80,
+        80,
+        85
+      ],
+      "gpu_temps": [
+        55,
+        61,
+        67,
+        73,
+        79,
+        85
+      ]
+    },
+    "MS-16K5": {
+      "cpu_speeds": [
+        30,
+        45,
+        55,
+        65,
+        70,
+        75,
+        80
+      ],
+      "cpu_temps": [
+        55,
+        61,
+        67,
+        73,
+        79,
+        85
+      ],
+      "gpu_speeds": [
+        0,
+        50,
+        60,
+        70,
+        75,
+        75,
+        80
+      ],
+      "gpu_temps": [
+        55,
+        61,
+        67,
+        73,
+        79,
+        85
+      ]
+    },
+    "MS-16L1": {
+      "cpu_speeds": [
+        20,
+        30,
+        35,
+        40,
+        45,
+        55,
+        75
+      ],
+      "cpu_temps": [
+        10,
+        20,
+        26,
+        32,
+        38,
+        44
+      ],
+      "gpu_speeds": [
+        19,
+        39,
+        43,
+        47,
+        54,
+        62,
+        100
+      ],
+      "gpu_temps": [
+        61,
+        67,
+        73,
+        79,
+        85,
+        90
+      ]
+    },
+    "MS-16L2": {
+      "cpu_speeds": [
+        19,
+        26,
+        34,
+        39,
+        43,
+        47,
+        54
+      ],
+      "cpu_temps": [
+        52,
+        64,
+        75,
+        83,
+        90,
+        97
+      ],
+      "gpu_speeds": [
+        19,
+        39,
+        43,
+        47,
+        54,
+        62,
+        100
+      ],
+      "gpu_temps": [
+        58,
+        65,
+        72,
+        80,
+        88,
+        95
+      ]
+    },
+    "MS-16P6": {
+      "cpu_speeds": [
+        0,
+        40,
+        47,
+        54,
+        61,
+        68,
+        75
+      ],
+      "cpu_temps": [
+        50,
+        57,
+        64,
+        71,
+        78,
+        85
+      ],
+      "gpu_speeds": [
+        0,
+        53,
+        59,
+        65,
+        71,
+        77,
+        83
+      ],
+      "gpu_temps": [
+        55,
+        60,
+        65,
+        70,
+        75,
+        80
+      ]
+    },
+    "MS-16Q2": {
+      "cpu_speeds": [
+        45,
+        45,
+        50,
+        60,
+        70,
+        75,
+        80
+      ],
+      "cpu_temps": [
+        55,
+        64,
+        70,
+        76,
+        82,
+        88
+      ],
+      "gpu_speeds": [
+        0,
+        50,
+        55,
+        60,
+        75,
+        85,
+        88
+      ],
+      "gpu_temps": [
+        55,
+        61,
+        70,
+        76,
+        81,
+        85
+      ]
+    },
+    "MS-16Q3": {
+      "cpu_speeds": [
+        30,
+        50,
+        60,
+        75,
+        75,
+        75,
+        75
+      ],
+      "cpu_temps": [
+        55,
+        64,
+        70,
+        76,
+        82,
+        88
+      ],
+      "gpu_speeds": [
+        0,
+        50,
+        55,
+        60,
+        65,
+        68,
+        78
+      ],
+      "gpu_temps": [
+        55,
+        61,
+        65,
+        71,
+        77,
+        87
+      ]
+    },
+    "MS-16Q4": {
+      "cpu_speeds": [
+        45,
+        50,
+        60,
+        70,
+        75,
+        80,
+        80
+      ],
+      "cpu_temps": [
+        55,
+        64,
+        70,
+        76,
+        82,
+        88
+      ],
+      "gpu_speeds": [
+        0,
+        50,
+        60,
+        70,
+        80,
+        90,
+        90
+      ],
+      "gpu_temps": [
+        55,
+        61,
+        65,
+        71,
+        77,
+        86
+      ]
+    },
+    "MS-16R1": {
+      "cpu_speeds": [
+        35,
+        38,
+        42,
+        45,
+        50,
+        55,
+        62
+      ],
+      "cpu_temps": [
+        55,
+        64,
+        73,
+        76,
+        82,
+        88
+      ],
+      "gpu_speeds": [
+        35,
+        38,
+        42,
+        45,
+        50,
+        55,
+        62
+      ],
+      "gpu_temps": [
+        55,
+        61,
+        67,
+        73,
+        79,
+        85
+      ]
+    },
+    "MS-16R3": {
+      "cpu_speeds": [
+        35,
+        38,
+        42,
+        45,
+        50,
+        55,
+        62
+      ],
+      "cpu_temps": [
+        55,
+        64,
+        73,
+        76,
+        82,
+        88
+      ],
+      "gpu_speeds": [
+        35,
+        38,
+        42,
+        45,
+        50,
+        55,
+        62
+      ],
+      "gpu_temps": [
+        55,
+        61,
+        67,
+        73,
+        79,
+        85
+      ]
+    },
+    "MS-16S2": {
+      "cpu_speeds": [
+        45,
+        58,
+        65,
+        72,
+        80,
+        85,
+        100
+      ],
+      "cpu_temps": [
+        50,
+        58,
+        65,
+        70,
+        90,
+        95
+      ],
+      "gpu_speeds": [
+        45,
+        50,
+        65,
+        72,
+        80,
+        85,
+        100
+      ],
+      "gpu_temps": [
+        50,
+        60,
+        70,
+        82,
+        90,
+        93
+      ]
+    },
+    "MS-16S3": {
+      "cpu_speeds": [
+        45,
+        58,
+        65,
+        72,
+        80,
+        85,
+        100
+      ],
+      "cpu_temps": [
+        50,
+        58,
+        65,
+        70,
+        90,
+        95
+      ],
+      "gpu_speeds": [
+        45,
+        50,
+        65,
+        72,
+        80,
+        85,
+        100
+      ],
+      "gpu_temps": [
+        50,
+        60,
+        70,
+        82,
+        90,
+        93
+      ]
+    },
+    "MS-16U4": {
+      "cpu_speeds": [
+        0,
+        40,
+        48,
+        56,
+        64,
+        72,
+        80
+      ],
+      "cpu_temps": [
+        50,
+        57,
+        64,
+        71,
+        78,
+        85
+      ],
+      "gpu_speeds": [
+        0,
+        50,
+        58,
+        66,
+        74,
+        74,
+        74
+      ],
+      "gpu_temps": [
+        55,
+        60,
+        65,
+        70,
+        75,
+        80
+      ]
+    },
+    "MS-16U5": {
+      "cpu_speeds": [
+        0,
+        40,
+        48,
+        56,
+        66,
+        76,
+        86
+      ],
+      "cpu_temps": [
+        50,
+        56,
+        62,
+        70,
+        75,
+        80
+      ],
+      "gpu_speeds": [
+        0,
+        45,
+        54,
+        62,
+        70,
+        78,
+        78
+      ],
+      "gpu_temps": [
+        55,
+        60,
+        65,
+        70,
+        75,
+        80
+      ]
+    },
+    "MS-16W1": {
+      "cpu_speeds": [
+        38,
+        43,
+        48,
+        54,
+        60,
+        70,
+        85
+      ],
+      "cpu_temps": [
+        55,
+        64,
+        73,
+        76,
+        82,
+        88
+      ],
+      "gpu_speeds": [
+        0,
+        43,
+        48,
+        54,
+        60,
+        70,
+        85
+      ],
+      "gpu_temps": [
+        55,
+        61,
+        67,
+        73,
+        79,
+        84
+      ]
+    },
+    "MS-1791": {
+      "cpu_speeds": [
+        0,
+        50,
+        56,
+        66,
+        76,
+        86,
+        86
+      ],
+      "cpu_temps": [
+        60,
+        65,
+        70,
+        75,
+        80,
+        80
+      ],
+      "gpu_speeds": [
+        0,
+        53,
+        60,
+        68,
+        76,
+        84,
+        84
+      ],
+      "gpu_temps": [
+        55,
+        60,
+        65,
+        70,
+        75,
+        75
+      ]
+    },
+    "MS-179C": {
+      "cpu_speeds": [
+        40,
+        48,
+        56,
+        66,
+        76,
+        86,
+        95
+      ],
+      "cpu_temps": [
+        55,
+        61,
+        67,
+        73,
+        79,
+        85
+      ],
+      "gpu_speeds": [
+        0,
+        54,
+        62,
+        70,
+        78,
+        86,
+        86
+      ],
+      "gpu_temps": [
+        55,
+        60,
+        65,
+        70,
+        75,
+        75
+      ]
+    },
+    "MS-17A6": {
+      "cpu_speeds": [
+        20,
+        34,
+        40,
+        55,
+        60,
+        65,
+        100
+      ],
+      "cpu_temps": [
+        55,
+        75,
+        80,
+        84,
+        88,
+        95
+      ],
+      "gpu_speeds": [
+        20,
+        30,
+        40,
+        55,
+        65,
+        79,
+        100
+      ],
+      "gpu_temps": [
+        47,
+        57,
+        67,
+        77,
+        85,
+        90
+      ]
+    },
+    "MS-17B1": {
+      "cpu_speeds": [
+        30,
+        45,
+        54,
+        64,
+        70,
+        75,
+        85
+      ],
+      "cpu_temps": [
+        55,
+        61,
+        67,
+        73,
+        79,
+        85
+      ],
+      "gpu_speeds": [
+        0,
+        50,
+        60,
+        70,
+        80,
+        80,
+        85
+      ],
+      "gpu_temps": [
+        55,
+        61,
+        67,
+        73,
+        79,
+        85
+      ]
+    },
+    "MS-17B5": {
+      "cpu_speeds": [
+        30,
+        45,
+        55,
+        65,
+        70,
+        75,
+        80
+      ],
+      "cpu_temps": [
+        55,
+        61,
+        67,
+        73,
+        79,
+        85
+      ],
+      "gpu_speeds": [
+        0,
+        50,
+        60,
+        70,
+        75,
+        75,
+        80
+      ],
+      "gpu_temps": [
+        55,
+        61,
+        67,
+        73,
+        79,
+        85
+      ]
+    },
+    "MS-17C6": {
+      "cpu_speeds": [
+        0,
+        40,
+        48,
+        56,
+        64,
+        72,
+        80
+      ],
+      "cpu_temps": [
+        50,
+        56,
+        62,
+        68,
+        74,
+        80
+      ],
+      "gpu_speeds": [
+        0,
+        53,
+        59,
+        65,
+        71,
+        77,
+        83
+      ],
+      "gpu_temps": [
+        55,
+        60,
+        65,
+        70,
+        75,
+        80
+      ]
+    },
+    "MS-17E2": {
+      "cpu_speeds": [
+        0,
+        40,
+        50,
+        60,
+        70,
+        80,
+        90
+      ],
+      "cpu_temps": [
+        50,
+        56,
+        62,
+        70,
+        75,
+        80
+      ],
+      "gpu_speeds": [
+        0,
+        45,
+        52,
+        59,
+        69,
+        79,
+        89
+      ],
+      "gpu_temps": [
+        55,
+        60,
+        65,
+        70,
+        75,
+        80
+      ]
+    },
+    "MS-17G1": {
+      "cpu_speeds": [
+        45,
+        50,
+        60,
+        70,
+        70,
+        70,
+        75
+      ],
+      "cpu_temps": [
+        55,
+        64,
+        70,
+        76,
+        82,
+        88
+      ],
+      "gpu_speeds": [
+        0,
+        50,
+        60,
+        70,
+        70,
+        80,
+        110
+      ],
+      "gpu_temps": [
+        55,
+        61,
+        65,
+        71,
+        77,
+        87
+      ]
+    }
+  },
+  "groups": {
+    "G1_0": {
+      "battery_threshold_addr": "0xef",
+      "cpu_fan_rpm_addr": "0xcc",
+      "fan_mode_addr": "0xf4",
+      "fan_modes": {
+        "advanced": "0x8d",
+        "auto": "0x0d",
+        "basic": "0x4d",
+        "silent": "0x1d"
+      },
+      "generation": "gen1",
+      "gpu_fan_rpm_addr": "0xca",
+      "has_gpu": true,
+      "rpm_divisor": 478000
+    },
+    "G1_1": {
+      "battery_threshold_addr": "0xef",
+      "cpu_fan_rpm_addr": "0xcc",
+      "fan_mode_addr": "0xf4",
+      "fan_modes": {
+        "advanced": "0x8d",
+        "auto": "0x0d",
+        "basic": "0x4d"
+      },
+      "generation": "gen1",
+      "gpu_fan_rpm_addr": "0xca",
+      "has_gpu": true,
+      "rpm_divisor": 478000
+    },
+    "G1_10": {
+      "battery_threshold_addr": null,
+      "cpu_fan_rpm_addr": "0xcc",
+      "fan_mode_addr": "0xf4",
+      "fan_modes": {
+        "advanced": "0x8c",
+        "auto": "0x0c",
+        "basic": "0x4c"
+      },
+      "generation": "gen1",
+      "gpu_fan_rpm_addr": "0xca",
+      "has_gpu": true,
+      "rpm_divisor": 478000
+    },
+    "G1_11": {
+      "battery_threshold_addr": "0xef",
+      "cpu_fan_rpm_addr": "0xcc",
+      "fan_mode_addr": "0xf4",
+      "fan_modes": {
+        "advanced": "0x8d",
+        "auto": "0x0d",
+        "silent": "0x1d"
+      },
+      "generation": "gen1",
+      "gpu_fan_rpm_addr": "0xca",
+      "has_gpu": true,
+      "rpm_divisor": 478000
+    },
+    "G1_13": {
+      "battery_threshold_addr": "0xef",
+      "cpu_fan_rpm_addr": "0xcc",
+      "fan_mode_addr": "0xf4",
+      "fan_modes": {
+        "advanced": "0x8d",
+        "auto": "0x0d",
+        "silent": "0x1d"
+      },
+      "generation": "gen1",
+      "gpu_fan_rpm_addr": "0xca",
+      "has_gpu": true,
+      "rpm_divisor": 478000
+    },
+    "G1_2": {
+      "battery_threshold_addr": "0xef",
+      "cpu_fan_rpm_addr": "0xcc",
+      "fan_mode_addr": "0xf4",
+      "fan_modes": {
+        "advanced": "0x8d",
+        "auto": "0x0d",
+        "silent": "0x1d"
+      },
+      "generation": "gen1",
+      "gpu_fan_rpm_addr": "0xca",
+      "has_gpu": true,
+      "rpm_divisor": 478000
+    },
+    "G1_3": {
+      "battery_threshold_addr": "0xef",
+      "cpu_fan_rpm_addr": "0xcc",
+      "fan_mode_addr": "0xf4",
+      "fan_modes": {
+        "advanced": "0x8d",
+        "auto": "0x0d",
+        "silent": "0x1d"
+      },
+      "generation": "gen1",
+      "gpu_fan_rpm_addr": "0xca",
+      "has_gpu": true,
+      "rpm_divisor": 478000
+    },
+    "G1_4": {
+      "battery_threshold_addr": "0xef",
+      "cpu_fan_rpm_addr": "0xcc",
+      "fan_mode_addr": "0xf4",
+      "fan_modes": {
+        "advanced": "0x8d",
+        "auto": "0x0d",
+        "silent": "0x1d"
+      },
+      "generation": "gen1",
+      "gpu_fan_rpm_addr": "0xca",
+      "has_gpu": true,
+      "rpm_divisor": 478000
+    },
+    "G1_5": {
+      "battery_threshold_addr": "0xef",
+      "cpu_fan_rpm_addr": "0xcc",
+      "fan_mode_addr": "0xf4",
+      "fan_modes": {
+        "advanced": "0x8d",
+        "auto": "0x0d",
+        "silent": "0x1d"
+      },
+      "generation": "gen1",
+      "gpu_fan_rpm_addr": "0xca",
+      "has_gpu": false,
+      "rpm_divisor": 478000
+    },
+    "G1_6": {
+      "battery_threshold_addr": "0xef",
+      "cpu_fan_rpm_addr": "0xcc",
+      "fan_mode_addr": "0xf4",
+      "fan_modes": {
+        "advanced": "0x8d",
+        "auto": "0x0d",
+        "silent": "0x1d"
+      },
+      "generation": "gen1",
+      "gpu_fan_rpm_addr": "0xca",
+      "has_gpu": false,
+      "rpm_divisor": 478000
+    },
+    "G1_7": {
+      "battery_threshold_addr": "0xef",
+      "cpu_fan_rpm_addr": "0xcc",
+      "fan_mode_addr": "0xf4",
+      "fan_modes": {
+        "advanced": "0x8d",
+        "auto": "0x0d",
+        "basic": "0x4d",
+        "silent": "0x1d"
+      },
+      "generation": "gen1",
+      "gpu_fan_rpm_addr": "0xca",
+      "has_gpu": true,
+      "rpm_divisor": 478000
+    },
+    "G1_8": {
+      "battery_threshold_addr": "0xef",
+      "cpu_fan_rpm_addr": "0xcc",
+      "fan_mode_addr": "0xf4",
+      "fan_modes": {
+        "advanced": "0x8d",
+        "auto": "0x0d",
+        "silent": "0x1d"
+      },
+      "generation": "gen1",
+      "gpu_fan_rpm_addr": "0xca",
+      "has_gpu": true,
+      "rpm_divisor": 478000
+    },
+    "G1_9": {
+      "battery_threshold_addr": "0xef",
+      "cpu_fan_rpm_addr": "0xcc",
+      "fan_mode_addr": "0xf4",
+      "fan_modes": {
+        "advanced": "0x8d",
+        "auto": "0x0d",
+        "basic": "0x4d"
+      },
+      "generation": "gen1",
+      "gpu_fan_rpm_addr": "0xca",
+      "has_gpu": true,
+      "rpm_divisor": 478000
+    },
+    "G2_0": {
+      "battery_threshold_addr": "0xd7",
+      "cpu_fan_rpm_addr": "0xcc",
+      "fan_mode_addr": "0xd4",
+      "fan_modes": {
+        "advanced": "0x8d",
+        "auto": "0x0d",
+        "silent": "0x1d"
+      },
+      "generation": "gen2",
+      "gpu_fan_rpm_addr": "0xca",
+      "has_gpu": false,
+      "rpm_divisor": 478000
+    },
+    "G2_1": {
+      "battery_threshold_addr": "0xd7",
+      "cpu_fan_rpm_addr": "0xcc",
+      "fan_mode_addr": "0xd4",
+      "fan_modes": {
+        "advanced": "0x8d",
+        "auto": "0x0d",
+        "silent": "0x1d"
+      },
+      "generation": "gen2",
+      "gpu_fan_rpm_addr": "0xca",
+      "has_gpu": true,
+      "rpm_divisor": 478000
+    },
+    "G2_10": {
+      "battery_threshold_addr": "0xd7",
+      "cpu_fan_rpm_addr": "0xcc",
+      "fan_mode_addr": "0xd4",
+      "fan_modes": {
+        "advanced": "0x8d",
+        "auto": "0x0d",
+        "silent": "0x1d"
+      },
+      "generation": "gen2",
+      "gpu_fan_rpm_addr": "0xca",
+      "has_gpu": true,
+      "rpm_divisor": 478000
+    },
+    "G2_2": {
+      "battery_threshold_addr": "0xd7",
+      "cpu_fan_rpm_addr": "0xcc",
+      "fan_mode_addr": "0xd4",
+      "fan_modes": {
+        "advanced": "0x8d",
+        "auto": "0x0d",
+        "silent": "0x1d"
+      },
+      "generation": "gen2",
+      "gpu_fan_rpm_addr": "0xca",
+      "has_gpu": true,
+      "rpm_divisor": 478000
+    },
+    "G2_3": {
+      "battery_threshold_addr": "0xd7",
+      "cpu_fan_rpm_addr": "0xcc",
+      "fan_mode_addr": "0xd4",
+      "fan_modes": {
+        "advanced": "0x8d",
+        "auto": "0x0d",
+        "silent": "0x1d"
+      },
+      "generation": "gen2",
+      "gpu_fan_rpm_addr": "0xca",
+      "has_gpu": false,
+      "rpm_divisor": 478000
+    },
+    "G2_4": {
+      "battery_threshold_addr": "0xd7",
+      "cpu_fan_rpm_addr": "0xcc",
+      "fan_mode_addr": "0xd4",
+      "fan_modes": {
+        "advanced": "0x8d",
+        "auto": "0x0d",
+        "silent": "0x1d"
+      },
+      "generation": "gen2",
+      "gpu_fan_rpm_addr": "0xca",
+      "has_gpu": true,
+      "rpm_divisor": 478000
+    },
+    "G2_5": {
+      "battery_threshold_addr": "0xd7",
+      "cpu_fan_rpm_addr": "0xcc",
+      "fan_mode_addr": "0xd4",
+      "fan_modes": {
+        "advanced": "0x8d",
+        "auto": "0x0d",
+        "silent": "0x1d"
+      },
+      "generation": "gen2",
+      "gpu_fan_rpm_addr": "0xca",
+      "has_gpu": true,
+      "rpm_divisor": 478000
+    },
+    "G2_6": {
+      "battery_threshold_addr": "0xd7",
+      "cpu_fan_rpm_addr": "0xcc",
+      "fan_mode_addr": "0xd4",
+      "fan_modes": {
+        "advanced": "0x8d",
+        "auto": "0x0d",
+        "silent": "0x1d"
+      },
+      "generation": "gen2",
+      "gpu_fan_rpm_addr": "0xca",
+      "has_gpu": true,
+      "rpm_divisor": 478000
+    }
+  }
+}
