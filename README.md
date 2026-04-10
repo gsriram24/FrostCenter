@@ -100,6 +100,23 @@ ui/
   settings.py       Settings page
 ```
 
+## Tested On
+
+| Device | OS | Status |
+|--------|----|--------|
+| MSI GF65 Thin 10UE (MS-16W2) | Bazzite 6.17.7 (Fedora Atomic) | Working |
+
+If you've tested FrostCenter on your setup, feel free to open a PR adding your device to this table.
+
+## Disclaimer
+
+**FrostCenter writes directly to your laptop's Embedded Controller (EC) registers.** While the addresses and values used are based on well-documented open-source projects (msi-ec, isw) and match what MSI's own Windows tools do, **incorrect EC writes can potentially cause hardware damage, system instability, or void your warranty.**
+
+- **Use at your own risk.** The authors are not responsible for any damage to your hardware.
+- **Back up your current EC state** by noting your fan speeds and battery threshold before making changes.
+- **Start with read-only mode** (Settings page) on untested models to verify temperature/RPM readings are correct before enabling writes.
+- If your model is not in the database, do **not** manually force a different model's config group — the register addresses may differ.
+
 ## Credits
 
 Built on data from:
