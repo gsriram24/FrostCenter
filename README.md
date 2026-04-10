@@ -8,6 +8,16 @@ Dark-themed GTK3 app with real-time temperature graphs, interactive fan curve ed
 ![GTK](https://img.shields.io/badge/GTK-3.0-green)
 ![License](https://img.shields.io/badge/license-GPL--3.0-orange)
 
+## Screenshots
+
+| Dashboard | Fan Control |
+|:---------:|:-----------:|
+| ![Dashboard](assets/screenshots/dashboard.png) | ![Fan Control](assets/screenshots/fan_control.png) |
+
+| Battery | Settings |
+|:-------:|:--------:|
+| ![Battery](assets/screenshots/battery.png) | ![Settings](assets/screenshots/settings.png) |
+
 ## Features
 
 - **Dashboard** — Live CPU/GPU temperature and fan RPM with rolling 60-second graphs

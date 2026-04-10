@@ -88,10 +88,34 @@ chmod +x "$BIN_DIR/frost"
 
 echo "  CLI launcher created at $BIN_DIR/frost"
 
-# Create .desktop file (launches in a small terminal for sudo prompt)
+# Detect graphical askpass for sudo
+ASKPASS=""
+for candidate in ksshaskpass ssh-askpass /usr/libexec/openssh/ssh-askpass; do
+    if command -v "$candidate" >/dev/null 2>&1 || [ -x "$candidate" ]; then
+        ASKPASS="$(command -v "$candidate" 2>/dev/null || echo "$candidate")"
+        break
+    fi
+done
+
+# Create .desktop file
 DESKTOP_DIR="$HOME/.local/share/applications"
 mkdir -p "$DESKTOP_DIR"
-cat > "$DESKTOP_DIR/frostcenter.desktop" << DESKTOP
+if [ -n "$ASKPASS" ]; then
+    # Graphical password prompt — no terminal needed
+    cat > "$DESKTOP_DIR/frostcenter.desktop" << DESKTOP
+[Desktop Entry]
+Name=FrostCenter
+Comment=MSI laptop fan control and thermal monitoring
+Exec=env SUDO_ASKPASS=$ASKPASS sudo -A python3 $INSTALL_DIR/OFC.py
+Icon=frostcenter
+Terminal=false
+Type=Application
+Categories=System;HardwareSettings;Utility;
+Keywords=fan;temperature;msi;cooling;thermal;
+DESKTOP
+else
+    # Fallback — needs terminal for password
+    cat > "$DESKTOP_DIR/frostcenter.desktop" << DESKTOP
 [Desktop Entry]
 Name=FrostCenter
 Comment=MSI laptop fan control and thermal monitoring
@@ -102,6 +126,7 @@ Type=Application
 Categories=System;HardwareSettings;Utility;
 Keywords=fan;temperature;msi;cooling;thermal;
 DESKTOP
+fi
 
 echo "  Desktop entry created."
 
