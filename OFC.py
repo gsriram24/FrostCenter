@@ -1,51 +1,83 @@
 #!/usr/bin/python3
 """FrostCenter — MSI laptop fan control and monitoring for Linux."""
 
+import argparse
 import sys
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, GLib
 
-from ec_access import ECAccess, ECAccessError
+from ec_access import ECAccess, ECAccessError, get_lockdown_status
 from model_config import ModelConfig, ModelNotFoundError, load_user_config
 
-from ui.theme import apply_theme, CPU_COLOR, make_label
+from ui.theme import apply_theme, CPU_COLOR, WARNING_COLOR, make_label
 from ui.dashboard import DashboardPage
 from ui.fan_control import FanControlPage
 from ui.battery import BatteryPage
 from ui.settings import SettingsPage
 
 
+def _show_error_dialog(title, message):
+    """Show a GTK error dialog and return."""
+    dialog = Gtk.MessageDialog(
+        message_type=Gtk.MessageType.ERROR,
+        buttons=Gtk.ButtonsType.OK,
+        text=title,
+    )
+    dialog.format_secondary_text(message)
+    dialog.run()
+    dialog.destroy()
+
+
 def main():
+    parser = argparse.ArgumentParser(description="FrostCenter — MSI laptop fan control")
+    parser.add_argument('--read-only', action='store_true',
+                        help='Start in read-only mode (monitoring only, no EC writes)')
+    args = parser.parse_args()
+
     # --- Initialize backend ---
     try:
         model = ModelConfig()
     except ModelNotFoundError as e:
-        print(f"ERROR: {e}", file=sys.stderr)
-        print(f"Your board: {e.board_name}", file=sys.stderr)
-        print(f"Known boards ({len(e.available_boards)}):", file=sys.stderr)
-        for b in e.available_boards[:20]:
-            board_info = e.database["boards"][b]
-            print(f"  {b} - {board_info['name']}", file=sys.stderr)
-        if len(e.available_boards) > 20:
-            print(f"  ... and {len(e.available_boards) - 20} more", file=sys.stderr)
+        _show_error_dialog(
+            "Model Not Found",
+            f"Board '{e.board_name}' is not in the database.\n\n"
+            f"{len(e.available_boards)} known boards available.\n"
+            "Run 'cat /sys/class/dmi/id/board_name' and open an issue on GitHub."
+        )
         sys.exit(1)
     except Exception as e:
-        print(f"ERROR loading model config: {e}", file=sys.stderr)
+        _show_error_dialog("Configuration Error", str(e))
         sys.exit(1)
 
     print(f"Detected: {model.model_name} ({model.board_name}, group {model.group})")
 
+    # Check lockdown status
+    lockdown = get_lockdown_status()
+
     try:
-        ec = ECAccess()
+        ec = ECAccess(read_only=args.read_only)
     except ECAccessError as e:
-        print(f"ERROR: {e}", file=sys.stderr)
+        if lockdown in ('integrity', 'confidentiality'):
+            _show_error_dialog(
+                "EC Access Blocked",
+                f"Kernel lockdown is set to '{lockdown}' (Secure Boot).\n\n"
+                "/dev/port is blocked — FrostCenter cannot read or write EC registers.\n\n"
+                "To fix: disable Secure Boot in BIOS, or set lockdown to 'none'.\n"
+                "Check: cat /sys/kernel/security/lockdown"
+            )
+        else:
+            _show_error_dialog("EC Access Error", str(e))
         sys.exit(1)
 
     user_cfg = load_user_config()
 
     # --- Build window ---
-    window = Gtk.Window(title=f"FrostCenter — {model.model_name}")
+    read_only = ec.is_read_only
+    title = f"FrostCenter — {model.model_name}"
+    if read_only:
+        title += " [READ-ONLY]"
+    window = Gtk.Window(title=title)
     window.set_default_size(900, 550)
     window.set_size_request(700, 450)
     window.connect("destroy", Gtk.main_quit)
@@ -80,7 +112,14 @@ def main():
         battery_page = BatteryPage(model, ec, user_cfg)
         stack.add_named(battery_page, "battery")
 
-    settings_page = SettingsPage(model, ec)
+    def _on_read_only_changed(state):
+        """Called when read-only toggle is flipped in Settings."""
+        fan_control_page.set_read_only(state)
+        if battery_page:
+            battery_page.set_read_only(state)
+
+    settings_page = SettingsPage(model, ec, window=window,
+                                  on_read_only_changed=_on_read_only_changed)
     stack.add_named(settings_page, "settings")
 
     # Sidebar navigation buttons

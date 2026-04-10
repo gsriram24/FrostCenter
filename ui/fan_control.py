@@ -161,6 +161,14 @@ class FanControlPage(Gtk.Box):
         self._temp_legend.set_markup("  ".join(legend_parts))
         self.temp_graph.queue_draw()
 
+    def set_read_only(self, state):
+        """Enable or disable controls based on read-only mode."""
+        for btn in self._profile_buttons.values():
+            btn.set_sensitive(not state)
+        self._boost_switch.set_sensitive(not state)
+        is_adv = self.user_cfg.get("profile", "auto") == "advanced"
+        self.curve_editor.set_enabled(is_adv and not state)
+
     def _update_profile_buttons(self, active_name):
         """Highlight the active profile button."""
         for name, btn in self._profile_buttons.items():

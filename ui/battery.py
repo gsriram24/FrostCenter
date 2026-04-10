@@ -149,6 +149,11 @@ class BatteryPage(Gtk.Box):
             cr.rectangle(4, 4, fill_w, h - 8)
             cr.fill()
 
+    def set_read_only(self, state):
+        """Enable or disable threshold buttons based on read-only mode."""
+        for btn in self._threshold_buttons.values():
+            btn.set_sensitive(not state)
+
     def _on_threshold_clicked(self, button, value):
         if self.ec.is_read_only:
             return

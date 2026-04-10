@@ -5,8 +5,9 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
+from ec_access import get_lockdown_status
 from ui.theme import (
-    TEXT_PRIMARY, TEXT_SECONDARY, TEXT_MUTED, SUCCESS_COLOR,
+    TEXT_PRIMARY, TEXT_SECONDARY, TEXT_MUTED, SUCCESS_COLOR, WARNING_COLOR,
     make_label, make_card,
 )
 
@@ -17,14 +18,22 @@ class SettingsPage(Gtk.Box):
     Args:
         model: ModelConfig instance
         ec: ECAccess instance
+        window: Gtk.Window instance (for updating title on read-only toggle)
+        on_read_only_changed: callback(bool) when read-only mode changes
     """
 
-    def __init__(self, model, ec):
+    def __init__(self, model, ec, window=None, on_read_only_changed=None):
         super().__init__(orientation=Gtk.Orientation.VERTICAL, spacing=12)
         self.set_margin_start(20)
         self.set_margin_end(20)
         self.set_margin_top(20)
         self.set_margin_bottom(20)
+        self._ec = ec
+        self._model = model
+        self._window = window
+        self._on_read_only_changed = on_read_only_changed
+
+        lockdown = get_lockdown_status()
 
         # --- System information card ---
         info_card = make_card()
@@ -40,6 +49,7 @@ class SettingsPage(Gtk.Box):
             ("Board", model.board_name),
             ("Config Group", model.group),
             ("EC Access", f"/dev/port ({'read-only' if ec.is_read_only else 'active'})"),
+            ("Lockdown", lockdown),
             ("Fan Modes", ", ".join(model.fan_modes.keys())),
             ("GPU", "Detected" if model.has_gpu else "Not detected"),
             ("Battery Ctrl",
@@ -52,9 +62,14 @@ class SettingsPage(Gtk.Box):
             lbl = make_label(label, color=TEXT_MUTED, size=12)
             grid.attach(lbl, 0, row_idx, 1, 1)
 
-            # Color active/detected values green
             val_color = TEXT_PRIMARY
-            if value in ("Detected", "active") or "Supported" in str(value):
+            if value in ("Detected",) or "Supported" in str(value):
+                val_color = SUCCESS_COLOR
+            elif value == "none":
+                val_color = SUCCESS_COLOR
+            elif value in ("integrity", "confidentiality"):
+                val_color = WARNING_COLOR
+            elif value == "active":
                 val_color = SUCCESS_COLOR
             elif "read-only" in str(value):
                 val_color = TEXT_SECONDARY
@@ -63,13 +78,15 @@ class SettingsPage(Gtk.Box):
             grid.attach(val_label, 1, row_idx, 1, 1)
 
         info_card.pack_start(grid, False, False, 0)
+        self._info_grid = grid
+        self._ec_row_idx = 3  # row index of "EC Access"
         self.pack_start(info_card, False, False, 0)
 
         # --- Options card ---
         opts_card = make_card()
         opts_card.pack_start(make_label("Options", size=13, bold=True), False, False, 0)
 
-        # Read-only mode display
+        # Read-only mode toggle
         ro_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
         ro_left = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         ro_left.pack_start(make_label("Read-only mode", size=12), False, False, 0)
@@ -79,11 +96,11 @@ class SettingsPage(Gtk.Box):
         )
         ro_row.pack_start(ro_left, True, True, 0)
 
-        ro_switch = Gtk.Switch()
-        ro_switch.set_active(ec.is_read_only)
-        ro_switch.set_sensitive(False)  # Display only — requires restart
-        ro_switch.set_valign(Gtk.Align.CENTER)
-        ro_row.pack_end(ro_switch, False, False, 0)
+        self._ro_switch = Gtk.Switch()
+        self._ro_switch.set_active(ec.is_read_only)
+        self._ro_switch.set_valign(Gtk.Align.CENTER)
+        self._ro_switch.connect("state-set", self._on_read_only_toggled)
+        ro_row.pack_end(self._ro_switch, False, False, 0)
         opts_card.pack_start(ro_row, False, False, 8)
 
         # Update interval display
@@ -113,3 +130,29 @@ class SettingsPage(Gtk.Box):
         about_label.set_halign(Gtk.Align.CENTER)
         about_card.pack_start(about_label, False, False, 4)
         self.pack_start(about_card, False, False, 0)
+
+    def _on_read_only_toggled(self, switch, state):
+        """Toggle read-only mode live."""
+        self._ec.is_read_only = state
+
+        # Update window title
+        if self._window:
+            title = f"FrostCenter — {self._model.model_name}"
+            if state:
+                title += " [READ-ONLY]"
+            self._window.set_title(title)
+
+        # Update EC Access row in info grid
+        ec_val = self._info_grid.get_child_at(1, self._ec_row_idx)
+        if ec_val:
+            ec_val.set_markup(
+                f'<span foreground="{TEXT_SECONDARY if state else SUCCESS_COLOR}" '
+                f'font_desc="12" weight="normal">'
+                f'/dev/port ({"read-only" if state else "active"})</span>'
+            )
+
+        # Notify other pages
+        if self._on_read_only_changed:
+            self._on_read_only_changed(state)
+
+        return False

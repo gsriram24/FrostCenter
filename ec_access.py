@@ -210,3 +210,22 @@ class ECAccess:
     def is_read_only(self):
         """Whether this instance is in read-only mode."""
         return self._read_only
+
+    @is_read_only.setter
+    def is_read_only(self, value):
+        """Set read-only mode at runtime."""
+        self._read_only = bool(value)
+
+
+def get_lockdown_status():
+    """Read kernel lockdown status. Returns one of 'none', 'integrity', 'confidentiality', or 'unknown'."""
+    try:
+        with open('/sys/kernel/security/lockdown', 'r') as f:
+            text = f.read().strip()
+            # Format is like: "none [integrity] confidentiality" with brackets on active
+            for token in text.split():
+                if token.startswith('[') and token.endswith(']'):
+                    return token[1:-1]
+            return 'unknown'
+    except (FileNotFoundError, PermissionError):
+        return 'unknown'

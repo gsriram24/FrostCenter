@@ -55,6 +55,26 @@ sudo python3 OFC.py
 
 Root access is required for EC register access via `/dev/port`.
 
+### Read-only mode
+
+To monitor temperatures and fan speeds without writing to the EC:
+
+```bash
+frost --read-only
+```
+
+You can also toggle read-only mode live from the Settings page. When enabled, all profile buttons, fan curve editing, cooler boost, and battery threshold controls are disabled.
+
+### Secure Boot / Kernel Lockdown
+
+FrostCenter requires access to `/dev/port`, which is blocked when kernel lockdown is active (typically due to Secure Boot). Check your status:
+
+```bash
+cat /sys/kernel/security/lockdown
+```
+
+If it shows `[integrity]` or `[confidentiality]`, you need to disable Secure Boot in your BIOS settings. If it shows `[none]`, you're good to go. The app will show a clear error dialog if access is blocked.
+
 ## Supported Models
 
 Auto-detection reads `/sys/class/dmi/id/board_name` and looks it up in the built-in database. **130+ MSI boards** are supported across 21 configuration groups:
