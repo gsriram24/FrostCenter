@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a1a2e"/>
+      <stop offset="100%" stop-color="#12121e"/>
+    </linearGradient>
+  </defs>
+  <!-- Background -->
+  <rect width="128" height="128" rx="24" fill="url(#bg)"/>
+  <!-- Snowflake / frost shape -->
+  <g transform="translate(64,62)" stroke="#00d4ff" stroke-width="3.5" stroke-linecap="round" fill="none">
+    <!-- Vertical arm -->
+    <line x1="0" y1="-30" x2="0" y2="30"/>
+    <line x1="-8" y1="-22" x2="0" y2="-30"/>
+    <line x1="8" y1="-22" x2="0" y2="-30"/>
+    <line x1="-8" y1="22" x2="0" y2="30"/>
+    <line x1="8" y1="22" x2="0" y2="30"/>
+    <!-- Top-right arm -->
+    <line x1="0" y1="0" x2="26" y2="-15"/>
+    <line x1="18" y1="-4" x2="26" y2="-15"/>
+    <line x1="20" y1="-16" x2="26" y2="-15"/>
+    <!-- Top-left arm -->
+    <line x1="0" y1="0" x2="-26" y2="-15"/>
+    <line x1="-18" y1="-4" x2="-26" y2="-15"/>
+    <line x1="-20" y1="-16" x2="-26" y2="-15"/>
+    <!-- Bottom-right arm -->
+    <line x1="0" y1="0" x2="26" y2="15"/>
+    <line x1="20" y1="16" x2="26" y2="15"/>
+    <line x1="18" y1="4" x2="26" y2="15"/>
+    <!-- Bottom-left arm -->
+    <line x1="0" y1="0" x2="-26" y2="15"/>
+    <line x1="-20" y1="16" x2="-26" y2="15"/>
+    <line x1="-18" y1="4" x2="-26" y2="15"/>
+  </g>
+  <!-- Center dot -->
+  <circle cx="64" cy="62" r="4" fill="#00d4ff"/>
+  <!-- Temperature bar at bottom -->
+  <rect x="30" y="100" width="68" height="6" rx="3" fill="#2d2d44"/>
+  <rect x="30" y="100" width="44" height="6" rx="3" fill="#ff4655"/>
+</svg>

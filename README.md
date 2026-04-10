@@ -55,6 +55,8 @@ sudo python3 OFC.py
 
 Root access is required for EC register access via `/dev/port`.
 
+The installer also creates a **desktop entry** — search "FrostCenter" in your app launcher to run it without a terminal.
+
 ### Read-only mode
 
 To monitor temperatures and fan speeds without writing to the EC:

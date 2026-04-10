@@ -68,17 +68,43 @@ fi
 
 echo "  Files copied."
 
-# Create launcher script
+# Install icon
+ICON_DIR="$HOME/.local/share/icons/hicolor/scalable/apps"
+mkdir -p "$ICON_DIR"
+if [ -f "$SCRIPT_DIR/assets/frostcenter.svg" ]; then
+    cp "$SCRIPT_DIR/assets/frostcenter.svg" "$ICON_DIR/"
+    echo "  Icon installed."
+fi
+
+# Create launcher script (CLI — works from terminal directly)
 mkdir -p "$BIN_DIR"
-cat > "$BIN_DIR/frost" << 'LAUNCHER'
+cat > "$BIN_DIR/frost" << LAUNCHER
 #!/bin/bash
 # FrostCenter launcher (requires root for /dev/port access)
-OFC_DIR="$HOME/.local/share/ofc"
-exec sudo python3 "$OFC_DIR/OFC.py" "$@"
+OFC_DIR="$INSTALL_DIR"
+exec sudo python3 "\$OFC_DIR/OFC.py" "\$@"
 LAUNCHER
 chmod +x "$BIN_DIR/frost"
 
-echo "  Launcher created at $BIN_DIR/frost"
+echo "  CLI launcher created at $BIN_DIR/frost"
+
+# Create .desktop file (launches in a small terminal for sudo prompt)
+DESKTOP_DIR="$HOME/.local/share/applications"
+mkdir -p "$DESKTOP_DIR"
+cat > "$DESKTOP_DIR/frostcenter.desktop" << DESKTOP
+[Desktop Entry]
+Name=FrostCenter
+Comment=MSI laptop fan control and thermal monitoring
+Exec=sudo python3 $INSTALL_DIR/OFC.py
+Icon=frostcenter
+Terminal=true
+Type=Application
+Categories=System;HardwareSettings;Utility;
+Keywords=fan;temperature;msi;cooling;thermal;
+DESKTOP
+
+echo "  Desktop entry created."
+
 
 # Check if ~/.local/bin is in PATH
 if ! echo "$PATH" | grep -q "$HOME/.local/bin"; then
@@ -91,7 +117,9 @@ fi
 echo ""
 echo "=== Installation complete ==="
 echo ""
-echo "To run: frost"
-echo "  (or: sudo python3 $INSTALL_DIR/OFC.py)"
+echo "You can now:"
+echo "  - Launch from app menu: search 'FrostCenter'"
+echo "  - Launch from terminal: frost"
+echo "  - Launch directly: sudo python3 $INSTALL_DIR/OFC.py"
 echo ""
 echo "Model: $PRODUCT ($BOARD)"
