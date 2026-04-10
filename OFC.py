@@ -9,8 +9,8 @@ from gi.repository import Gtk, GLib
 from ec_access import ECAccess, ECAccessError, ECTimeoutError
 from model_config import ModelConfig, ModelNotFoundError, load_user_config, save_user_config
 
-# --- Phase 1: Read-only mode ---
-READ_ONLY = True
+# --- Phase 2: Full control ---
+READ_ONLY = False
 
 # --- Initialize model detection and EC access ---
 
