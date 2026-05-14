@@ -73,17 +73,19 @@ class DashboardPage(Gtk.Box):
         """Called every 500ms to read EC and update displays."""
         cpu_temp = safe_read_byte(ec, self.model.cpu_temp_addr)
         cpu_rpm = safe_read_rpm(ec, self.model, self.model.cpu_fan_rpm_addr)
+        cpu_pct = safe_read_byte(ec, self.model.cpu_fan_speed_pct_addr)
 
-        self.cpu_card.update(cpu_temp, cpu_rpm)
+        self.cpu_card.update(cpu_temp, cpu_rpm, cpu_pct)
         self.temp_graph.add_point(0, cpu_temp)
-        self.rpm_graph.add_point(0, cpu_rpm)
+        self.rpm_graph.add_point(0, cpu_rpm if cpu_rpm > 0 else cpu_pct * 60)
 
         if self.model.has_gpu and self.gpu_card:
             gpu_temp = safe_read_byte(ec, self.model.gpu_temp_addr)
             gpu_rpm = safe_read_rpm(ec, self.model, self.model.gpu_fan_rpm_addr)
-            self.gpu_card.update(gpu_temp, gpu_rpm)
+            gpu_pct = safe_read_byte(ec, self.model.gpu_fan_speed_pct_addr)
+            self.gpu_card.update(gpu_temp, gpu_rpm, gpu_pct)
             self.temp_graph.add_point(1, gpu_temp)
-            self.rpm_graph.add_point(1, gpu_rpm)
+            self.rpm_graph.add_point(1, gpu_rpm if gpu_rpm > 0 else gpu_pct * 60)
 
         self.temp_graph.queue_draw()
         self.rpm_graph.queue_draw()
