@@ -39,22 +39,34 @@ body:
     attributes:
       label: EC Diagnostic Output
       description: |
-        Run the following command and paste the output. This reads the key EC registers directly.
+        Run the following command and paste the output. This reads key EC registers using the ACPI EC protocol (read-only, safe to run).
         ```bash
         sudo python3 -c "
-        import struct
-        def rb(a):
-            with open('/dev/port','rb') as f: f.seek(a); return f.read(1)[0]
-        def rw(a):
-            with open('/dev/port','rb') as f: f.seek(a); return struct.unpack('>H', f.read(2))[0]
-        print(f'CPU temp (0x68):     {rb(0x68)} °C')
-        print(f'CPU fan % (0x71):    {rb(0x71)} %')
-        print(f'CPU fan RPM raw (0xcc/0xcd): {rw(0xcc)} (raw word)')
-        print(f'GPU temp (0x80):     {rb(0x80)} °C')
-        print(f'GPU fan % (0x73):    {rb(0x73)} %')
-        print(f'GPU fan RPM raw (0xc8/0xc9): {rw(0xc8)} (raw word)')
-        print(f'Fan mode (0xd2):     {hex(rb(0xd2))}')
-        print(f'Cooler boost (0x98): {hex(rb(0x98))}')
+        import os
+        EC_SC, EC_DATA = 0x66, 0x62
+        fd = os.open('/dev/port', os.O_RDWR)
+        def rp(p): return os.pread(fd, 1, p)[0]
+        def wp(p, v): os.pwrite(fd, bytes([v]), p)
+        def ibf():
+            for _ in range(500):
+                if not (rp(EC_SC) & 0x02): return
+            raise TimeoutError('IBF')
+        def obf():
+            for _ in range(500):
+                if rp(EC_SC) & 0x01: return
+            raise TimeoutError('OBF')
+        def rb(r):
+            ibf(); wp(EC_SC, 0x80); ibf(); wp(EC_DATA, r); ibf(); obf(); return rp(EC_DATA)
+        def rw(r): return (rb(r) << 8) | rb(r + 1)
+        print(f'CPU temp (0x68):             {rb(0x68)} C')
+        print(f'CPU fan % (0x71):            {rb(0x71)} %')
+        print(f'CPU fan RPM raw (0xcc/0xcd): {rw(0xcc)}')
+        print(f'GPU temp (0x80):             {rb(0x80)} C')
+        print(f'GPU fan % (0x73):            {rb(0x73)} %')
+        print(f'GPU fan RPM raw (0xc8/0xc9): {rw(0xc8)}')
+        print(f'Fan mode (0xd2):             {hex(rb(0xd2))}')
+        print(f'Cooler boost (0x98):         {hex(rb(0x98))}')
+        os.close(fd)
         "
         ```
       render: shell
