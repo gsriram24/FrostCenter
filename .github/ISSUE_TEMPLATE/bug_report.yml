@@ -1,0 +1,78 @@
+name: Bug Report
+description: Report a bug or unexpected behavior in FrostCenter
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! Please fill out the sections below to help us investigate.
+
+  - type: input
+    id: board_name
+    attributes:
+      label: MSI Board / Model Name
+      description: Run `cat /sys/class/dmi/id/board_name` and paste the output
+      placeholder: "e.g. MS-14D2"
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating System
+      description: e.g. Bazzite 41, Fedora 41, Ubuntu 24.04
+      placeholder: "e.g. Bazzite 41 (Fedora-based)"
+    validations:
+      required: true
+
+  - type: input
+    id: frostcenter_version
+    attributes:
+      label: FrostCenter Version
+      description: Git commit hash or release tag
+      placeholder: "e.g. v0.2.0 or abc1234"
+    validations:
+      required: true
+
+  - type: textarea
+    id: diagnostic
+    attributes:
+      label: EC Diagnostic Output
+      description: |
+        Run the following command and paste the output. This reads the key EC registers directly.
+        ```bash
+        sudo python3 -c "
+        import struct
+        def rb(a):
+            with open('/dev/port','rb') as f: f.seek(a); return f.read(1)[0]
+        def rw(a):
+            with open('/dev/port','rb') as f: f.seek(a); return struct.unpack('>H', f.read(2))[0]
+        print(f'CPU temp (0x68):     {rb(0x68)} °C')
+        print(f'CPU fan % (0x71):    {rb(0x71)} %')
+        print(f'CPU fan RPM raw (0xcc/0xcd): {rw(0xcc)} (raw word)')
+        print(f'GPU temp (0x80):     {rb(0x80)} °C')
+        print(f'GPU fan % (0x73):    {rb(0x73)} %')
+        print(f'GPU fan RPM raw (0xc8/0xc9): {rw(0xc8)} (raw word)')
+        print(f'Fan mode (0xd2):     {hex(rb(0xd2))}')
+        print(f'Cooler boost (0x98): {hex(rb(0x98))}')
+        "
+        ```
+      render: shell
+    validations:
+      required: false
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: What did you expect to happen, and what actually happened?
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots
+      description: If applicable, attach screenshots of the UI showing the issue
+    validations:
+      required: false
