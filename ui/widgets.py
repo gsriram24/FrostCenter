@@ -213,7 +213,7 @@ class StatCard(Gtk.Box):
         rpm_row.pack_end(self._rpm_label, False, False, 0)
         self.pack_start(rpm_row, False, False, 0)
 
-    def update(self, temp, rpm, fan_pct=0):
+    def update(self, temp, rpm, fan_pct=0, is_boosting=False):
         """Update displayed values. Tracks min/max internally."""
         if temp > 0:
             if temp < self._min:
@@ -231,6 +231,8 @@ class StatCard(Gtk.Box):
         )
         if rpm > 0:
             fan_text = f"{rpm} RPM"
+        elif is_boosting:
+            fan_text = "Boost"
         elif fan_pct > 0:
             fan_text = f"{fan_pct}%"
         else:

@@ -74,18 +74,30 @@ class DashboardPage(Gtk.Box):
         cpu_temp = safe_read_byte(ec, self.model.cpu_temp_addr)
         cpu_rpm = safe_read_rpm(ec, self.model, self.model.cpu_fan_rpm_addr)
         cpu_pct = safe_read_byte(ec, self.model.cpu_fan_speed_pct_addr)
+        boost_raw = safe_read_byte(ec, self.model.cooler_boost_addr)
+        is_boosting = bool(boost_raw & (1 << self.model.cooler_boost_bit))
 
-        self.cpu_card.update(cpu_temp, cpu_rpm, cpu_pct)
+        self.cpu_card.update(cpu_temp, cpu_rpm, cpu_pct, is_boosting)
         self.temp_graph.add_point(0, cpu_temp)
-        self.rpm_graph.add_point(0, cpu_rpm if cpu_rpm > 0 else cpu_pct * 60)
+        if cpu_rpm > 0:
+            self.rpm_graph.add_point(0, cpu_rpm)
+        elif is_boosting:
+            self.rpm_graph.add_point(0, 6000)
+        else:
+            self.rpm_graph.add_point(0, cpu_pct * 60)
 
         if self.model.has_gpu and self.gpu_card:
             gpu_temp = safe_read_byte(ec, self.model.gpu_temp_addr)
             gpu_rpm = safe_read_rpm(ec, self.model, self.model.gpu_fan_rpm_addr)
             gpu_pct = safe_read_byte(ec, self.model.gpu_fan_speed_pct_addr)
-            self.gpu_card.update(gpu_temp, gpu_rpm, gpu_pct)
+            self.gpu_card.update(gpu_temp, gpu_rpm, gpu_pct, is_boosting)
             self.temp_graph.add_point(1, gpu_temp)
-            self.rpm_graph.add_point(1, gpu_rpm if gpu_rpm > 0 else gpu_pct * 60)
+            if gpu_rpm > 0:
+                self.rpm_graph.add_point(1, gpu_rpm)
+            elif is_boosting:
+                self.rpm_graph.add_point(1, 6000)
+            else:
+                self.rpm_graph.add_point(1, gpu_pct * 60)
 
         self.temp_graph.queue_draw()
         self.rpm_graph.queue_draw()
