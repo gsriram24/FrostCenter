@@ -52,7 +52,7 @@ If PyGObject/GTK3 isn't installed:
 |--------|----------------|
 | Fedora | `sudo dnf install python3-gobject gtk3` |
 | Bazzite/Immutable | `rpm-ostree install python3-gobject gtk3` then reboot |
-| Ubuntu/Debian | `sudo apt install python3-gi gir1.2-gtk-3.0` |
+| Ubuntu/Debian | `sudo apt install python3-gi python3-gi-cairo gir1.2-gtk-3.0` |
 | Arch | `sudo pacman -S python-gobject gtk3` |
 
 > [!TIP]
@@ -145,11 +145,14 @@ ui/
 
 ## Tested On
 
-| Device | OS | Status |
-|--------|----|--------|
-| MSI GF65 Thin 10UE (MS-16W2) | Bazzite 6.17.7 (Fedora Atomic) | Working |
+| Device | Board | OS | Status | Verified By |
+|--------|-------|----|--------|-------------|
+| MSI GF65 Thin 10UE | `MS-16W2` | Bazzite 6.17.7 (Fedora Atomic) | Working | @gsriram24 |
+| MSI Modern 14 B11SBU | `MS-14D2` | Bazzite 44 (KDE Plasma 6) | Working | @Acintya-J ([#3](https://github.com/gsriram24/FrostCenter/issues/3)) |
+| MSI Thin GF63 | `MS-16R8` | Ubuntu 26.04 | Working | @Leotruccc ([#8](https://github.com/gsriram24/FrostCenter/issues/8)) |
+| MSI Raider A18 HX A9W | `MS-182L` | Debian 13 (XanMod 7.0) | Working | @dye025 ([#11](https://github.com/gsriram24/FrostCenter/issues/11)) |
 
-If you've tested FrostCenter on your setup, feel free to open a PR adding your device to this table.
+If you've tested FrostCenter on your setup, feel free to open an issue or PR adding your device to this table.
 
 ## Disclaimer
 
