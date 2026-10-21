@@ -268,6 +268,14 @@
       "group": "G2_10",
       "name": "Stealth A16 AI+ A3XWHG"
     },
+    "MS-15G1": {
+      "group": "G2_10",
+      "name": "Creator Z16P / CreatorPro Z16P"
+    },
+    "MS-15G2": {
+      "group": "G2_10",
+      "name": "CreatorPro Z16HXStudio B13V"
+    },
     "MS-15H1": {
       "group": "G2_0",
       "name": "Modern 15 B13M"
