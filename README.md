@@ -48,12 +48,23 @@ The installer checks dependencies and copies files to `~/.local/share/ofc/`. It 
 
 If PyGObject/GTK3 isn't installed:
 
-| Distro | Command |
-|--------|---------|
+| Distro | System Command |
+|--------|----------------|
 | Fedora | `sudo dnf install python3-gobject gtk3` |
 | Bazzite/Immutable | `rpm-ostree install python3-gobject gtk3` then reboot |
 | Ubuntu/Debian | `sudo apt install python3-gi gir1.2-gtk-3.0` |
 | Arch | `sudo pacman -S python-gobject gtk3` |
+
+> [!TIP]
+> **Virtual environments (`venv` / `pyenv`):**  
+> If running inside a virtualenv or custom Python, create your environment with `--system-site-packages` so it inherits the system GTK bindings:
+> ```bash
+> python3 -m venv --system-site-packages .venv
+> ```
+> If compiling `pygobject` directly inside an isolated environment via `pip`:
+> - **Ubuntu/Debian (24.04+ / Debian 13):** `sudo apt install libgirepository-2.0-dev gir1.2-girepository-2.0-dev libcairo2-dev && pip install pygobject`
+> - **Fedora:** `sudo dnf install gobject-introspection-devel cairo-gobject-devel && pip install pygobject`
+> - **Arch:** `sudo pacman -S gobject-introspection cairo && pip install pygobject`
 
 ## Usage
 

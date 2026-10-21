@@ -48,6 +48,9 @@ else
     echo "    Immutable:      rpm-ostree install python3-gobject gtk3 && reboot"
     echo "    Ubuntu/Debian:  sudo apt install python3-gi gir1.2-gtk-3.0"
     echo "    Arch:           sudo pacman -S python-gobject gtk3"
+    echo ""
+    echo "  Note for venv / pyenv: Use --system-site-packages or install distro dev headers"
+    echo "  (e.g., libgirepository-2.0-dev on Debian/Ubuntu) before pip install pygobject."
     exit 1
 fi
 
