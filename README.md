@@ -180,6 +180,7 @@ ui/
 | MSI Modern 14 B11SBU | `MS-14D2` | Bazzite 44 (KDE Plasma 6) | Working | @Acintya-J ([#3](https://github.com/gsriram24/FrostCenter/issues/3)) |
 | MSI Thin GF63 | `MS-16R8` | Ubuntu 26.04 | Working | @Leotruccc ([#8](https://github.com/gsriram24/FrostCenter/issues/8)) |
 | MSI Raider A18 HX A9W | `MS-182L` | Debian 13 (XanMod 7.0) | Working | @dye025 ([#11](https://github.com/gsriram24/FrostCenter/issues/11)) |
+| MSI GE72 6QD Apache Pro | `MS-1795` | Ubuntu 26.04 LTS | Working | @DuskVHyde77 ([#7](https://github.com/gsriram24/FrostCenter/issues/7)) |
 
 If you've tested FrostCenter on your setup, feel free to open an issue or PR adding your device to this table.
 
