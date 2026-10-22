@@ -119,8 +119,27 @@ def main():
     args = parser.parse_args()
 
     if args.unmapped:
-        print("[Simulator] Simulating unmapped board: MS-9999 (Alien/Generic PC)...")
-        _show_model_not_found_window("MS-9999", 19)
+        print("[Simulator] Simulating unmapped board with live EC probe: MS-9999...")
+        import ui.helpers
+        ui.helpers.read_dmi_value = lambda name: {
+            "board_name": "MS-9999",
+            "product_name": "Titan GT77 HX 13VI (Simulated)",
+            "sys_vendor": "Micro-Star International Co., Ltd.",
+        }.get(name, "Unknown")
+
+        ui.helpers.run_read_only_diagnostic = lambda: (
+            "CPU temp (0x68):             48 C\n"
+            "CPU fan % (0x71):            35 %\n"
+            "CPU fan RPM raw (0xcc/0xcd): 2450 (approx 2450 RPM)\n"
+            "GPU temp (0x80):             41 C\n"
+            "GPU fan % (0x73):            30 %\n"
+            "GPU fan RPM raw (0xc8/0xc9): 2100 (approx 2100 RPM)\n"
+            "Fan mode (0xd2):             0x0d\n"
+            "Fan mode (0xf4):             0x0d\n"
+            "Cooler boost (0x98):         0x00\n"
+            "Battery threshold (0xef):    0x50 (80%)"
+        )
+        _show_model_not_found_window("MS-9999", 130)
         return
 
     print(f"[Simulator] Loading simulated MSI hardware for board: {args.board}")
