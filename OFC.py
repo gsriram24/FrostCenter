@@ -225,10 +225,7 @@ def main():
     dashboard_page = DashboardPage(model)
     stack.add_named(dashboard_page, "dashboard")
 
-    fan_control_page = FanControlPage(
-        model, ec, user_cfg,
-        on_profile_changed=lambda name: _update_profile_indicator(profile_label, name),
-    )
+    fan_control_page = FanControlPage(model, ec, user_cfg)
     stack.add_named(fan_control_page, "fan_control")
 
     battery_page = None
@@ -263,20 +260,8 @@ def main():
     # Set Dashboard as active
     sidebar_buttons["dashboard"].get_style_context().add_class("active")
 
-    # Spacer to push profile indicator to bottom
+    # Spacer to push footer to bottom
     sidebar.pack_start(Gtk.Box(), True, True, 0)
-
-    # Profile indicator at bottom of sidebar
-    profile_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
-    profile_box.set_margin_start(20)
-    profile_box.set_margin_end(20)
-    profile_box.set_margin_bottom(10)
-    profile_box.pack_start(make_label("Profile", color="#444444", size=10), False, False, 0)
-    profile_label = Gtk.Label()
-    profile_label.get_style_context().add_class("profile-indicator")
-    _update_profile_indicator(profile_label, user_cfg.get("profile", "auto"))
-    profile_box.pack_start(profile_label, False, False, 0)
-    sidebar.pack_start(profile_box, False, False, 0)
 
     # Sidebar footer: verification (if unverified) & GitHub star
     footer_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
@@ -334,13 +319,7 @@ def _on_sidebar_clicked(button, page_name, stack, buttons):
             ctx.remove_class("active")
 
 
-def _update_profile_indicator(label, profile_name):
-    """Update the profile indicator label in the sidebar."""
-    from ui.helpers import PROFILE_DISPLAY
-    display = PROFILE_DISPLAY.get(profile_name, profile_name.title())
-    label.set_markup(
-        f'<span foreground="{CPU_COLOR}" font_desc="12">{display}</span>'
-    )
+
 
 
 if __name__ == "__main__":

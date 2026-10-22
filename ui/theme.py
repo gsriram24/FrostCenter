@@ -162,14 +162,6 @@ switch:checked slider {{
 switch:disabled {{
     opacity: 0.4;
 }}
-.profile-indicator {{
-    background-color: rgba(255, 70, 85, 0.13);
-    border: 1px solid rgba(255, 70, 85, 0.4);
-    border-radius: 6px;
-    padding: 6px 12px;
-    color: {CPU_COLOR};
-    font-size: 12px;
-}}
 .accent-btn {{
     background-color: rgba(0, 212, 255, 0.14);
     border: 1px solid rgba(0, 212, 255, 0.5);
