@@ -47,10 +47,13 @@ Download the latest release package for your distribution from the [GitHub Relea
   ```bash
   sudo dnf install ./frostcenter-0.1.0-1.noarch.rpm
   ```
-- **Arch Linux (AUR):**
+- **Arch Linux / Manjaro / EndeavourOS:**
   ```bash
-  yay -S frostcenter
+  # Native PKGBUILD installation:
+  git clone https://github.com/gsriram24/FrostCenter.git
+  cd FrostCenter/packaging/arch && makepkg -si
   ```
+  *(AUR package submission pending upstream Arch registration reopening)*
 - **Bazzite / SteamOS / Universal:**
   Download `frostcenter-0.1.0.tar.gz`, extract, and run:
   ```bash
