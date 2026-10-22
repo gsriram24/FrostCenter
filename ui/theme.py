@@ -170,6 +170,60 @@ switch:disabled {{
     color: {CPU_COLOR};
     font-size: 12px;
 }}
+.accent-btn {{
+    background-color: rgba(0, 212, 255, 0.14);
+    border: 1px solid rgba(0, 212, 255, 0.5);
+    border-radius: 8px;
+    padding: 8px 16px;
+    color: {GPU_COLOR};
+    font-weight: 600;
+    font-size: 12px;
+}}
+.accent-btn:hover {{
+    background-color: rgba(0, 212, 255, 0.25);
+    border-color: {GPU_COLOR};
+    color: #ffffff;
+}}
+.secondary-btn {{
+    background-color: {BG_ELEVATED};
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 8px 16px;
+    color: {TEXT_PRIMARY};
+    font-size: 12px;
+}}
+.secondary-btn:hover {{
+    background-color: rgba(45, 45, 68, 0.85);
+    color: #ffffff;
+}}
+.link-btn {{
+    background: transparent;
+    border: none;
+    color: {TEXT_MUTED};
+    font-size: 11px;
+    padding: 4px 6px;
+}}
+.link-btn:hover {{
+    color: {GPU_COLOR};
+}}
+.mono-box {{
+    background-color: {BG_MAIN};
+    border: 1px solid {BORDER};
+    border-radius: 8px;
+    color: {TEXT_PRIMARY};
+    font-family: monospace;
+    font-size: 11px;
+    padding: 10px;
+}}
+.badge-warning {{
+    background-color: rgba(255, 140, 0, 0.14);
+    border: 1px solid rgba(255, 140, 0, 0.5);
+    border-radius: 6px;
+    padding: 4px 10px;
+    color: {WARNING_COLOR};
+    font-size: 11px;
+    font-weight: 600;
+}}
 """.encode()
 
 
