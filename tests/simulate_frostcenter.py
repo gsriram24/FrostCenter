@@ -28,6 +28,7 @@ import ec_access
 import model_config
 import ui.helpers
 import OFC
+from version import __version__
 
 _CURRENT_BOARD = "MS-17E9"
 
@@ -113,6 +114,7 @@ class MockECAccess:
 def main():
     global _CURRENT_BOARD
     parser = argparse.ArgumentParser(description="FrostCenter Hardware Simulator — runs real OFC.py")
+    parser.add_argument('-v', '--version', action='version', version=f"FrostCenter {__version__} [SIMULATOR]")
     parser.add_argument('--board', default='MS-17E9',
                         help='Simulate a specific MSI motherboard ID (e.g., MS-16R4, MS-16W2)')
     parser.add_argument('--unmapped', action='store_true',

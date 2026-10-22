@@ -7,6 +7,7 @@ import threading
 import urllib.parse
 from ec_access import ECTimeoutError
 from model_config import save_user_config
+from version import __version__
 
 BASIC_SPEED = [[0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0]]
 
@@ -213,7 +214,7 @@ def build_verified_device_text(model):
 - [x] Cooler Boost toggle working
 - [{"x" if battery_supported else " "}] Battery charge threshold limit
 
-*Submitted via FrostCenter In-App Feedback*"""
+*Submitted via FrostCenter v{__version__} In-App Feedback*"""
 
 
 def build_verified_device_url(model):
@@ -238,7 +239,7 @@ def build_model_missing_url(board_name, product_name, diagnostic_text):
 {distro} ({kernel})
 
 ### FrostCenter Version
-latest
+v{__version__}
 
 ### EC Diagnostic Output
 ```shell

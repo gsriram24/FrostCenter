@@ -8,7 +8,8 @@ INSTALL_DIR="$HOME/.local/share/ofc"
 BIN_DIR="$HOME/.local/bin"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-echo "=== FrostCenter ==="
+VERSION=$(python3 -c "import sys; sys.path.insert(0, '$SCRIPT_DIR'); from version import __version__; print(__version__)" 2>/dev/null || echo "0.1.0")
+echo "=== FrostCenter v$VERSION ==="
 echo ""
 
 # Check for MSI laptop
@@ -63,6 +64,7 @@ mkdir -p "$INSTALL_DIR/ui"
 cp "$SCRIPT_DIR/OFC.py" "$INSTALL_DIR/"
 cp "$SCRIPT_DIR/ec_access.py" "$INSTALL_DIR/"
 cp "$SCRIPT_DIR/model_config.py" "$INSTALL_DIR/"
+cp "$SCRIPT_DIR/version.py" "$INSTALL_DIR/"
 cp "$SCRIPT_DIR/models/database.json" "$INSTALL_DIR/models/"
 cp "$SCRIPT_DIR"/ui/*.py "$INSTALL_DIR/ui/"
 if [ -f "$SCRIPT_DIR/LICENSE" ]; then

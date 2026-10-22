@@ -10,6 +10,7 @@ from ui.helpers import (
     build_verified_device_url, build_verified_device_text,
     open_url_async, copy_to_clipboard,
 )
+from version import __version__
 from ui.theme import (
     TEXT_PRIMARY, TEXT_SECONDARY, TEXT_MUTED, SUCCESS_COLOR, WARNING_COLOR, GPU_COLOR,
     make_label, make_card,
@@ -222,10 +223,8 @@ class SettingsPage(Gtk.Box):
         about_card = make_card()
         about_label = Gtk.Label()
         about_label.set_markup(
-            f'<span foreground="{TEXT_MUTED}" font_desc="11">'
-            f'FrostCenter\n'
-            f'<span font_desc="10">MSI laptop fan control for Linux · 130+ models supported</span>'
-            f'</span>'
+            f'<span foreground="{TEXT_PRIMARY}" font_desc="11" weight="bold">FrostCenter v{__version__}</span>\n'
+            f'<span foreground="{TEXT_MUTED}" font_desc="10">MSI laptop fan control for Linux · 130+ models supported</span>'
         )
         about_label.set_justify(Gtk.Justification.CENTER)
         about_label.set_halign(Gtk.Align.CENTER)

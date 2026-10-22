@@ -16,6 +16,7 @@ from ui.fan_control import FanControlPage
 from ui.battery import BatteryPage
 from ui.settings import SettingsPage
 from ui.helpers import open_url_async, build_verified_device_url
+from version import __version__
 
 
 def _show_error_dialog(title, message):
@@ -160,6 +161,7 @@ def _show_model_not_found_window(board_name, available_count):
 
 def main():
     parser = argparse.ArgumentParser(description="FrostCenter — MSI laptop fan control")
+    parser.add_argument('-v', '--version', action='version', version=f"FrostCenter {__version__}")
     parser.add_argument('--read-only', action='store_true',
                         help='Start in read-only mode (monitoring only, no EC writes)')
     args = parser.parse_args()

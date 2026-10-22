@@ -6,8 +6,7 @@ Only the latest release and the current `main` branch receive security patches a
 
 | Version | Supported |
 |---------|-----------|
-| `main` (latest) | :white_check_mark: |
-| < 1.0.0 | :x: |
+| 0.1.x (latest) | :white_check_mark: |
 
 ---
 
