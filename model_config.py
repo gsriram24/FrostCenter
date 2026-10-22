@@ -110,6 +110,7 @@ class ModelConfig:
 
         self.model_name = board_entry["name"]
         self.group = board_entry["group"]
+        self.is_verified = bool(board_entry.get("verified", False))
 
         # Look up group configuration
         group_conf = db["groups"].get(self.group)

@@ -3,11 +3,15 @@
 
 import gi
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk
+from gi.repository import Gtk, GLib
 
 from ec_access import get_lockdown_status
+from ui.helpers import (
+    build_verified_device_url, build_verified_device_text,
+    open_url_async, copy_to_clipboard,
+)
 from ui.theme import (
-    TEXT_PRIMARY, TEXT_SECONDARY, TEXT_MUTED, SUCCESS_COLOR, WARNING_COLOR,
+    TEXT_PRIMARY, TEXT_SECONDARY, TEXT_MUTED, SUCCESS_COLOR, WARNING_COLOR, GPU_COLOR,
     make_label, make_card,
 )
 
@@ -116,6 +120,103 @@ class SettingsPage(Gtk.Box):
         opts_card.pack_start(interval_row, False, False, 8)
 
         self.pack_start(opts_card, False, False, 0)
+
+        # --- Community & Device Feedback card ---
+        community_card = make_card()
+        community_card.pack_start(
+            make_label("Device Verification & Community", size=13, bold=True),
+            False, False, 0,
+        )
+
+        is_verified = getattr(model, 'is_verified', False)
+
+        if is_verified:
+            desc_text = "This laptop model is confirmed working by the community on Linux."
+            badge_color = SUCCESS_COLOR
+            badge_text = f"✓ Community Verified: {model.model_name} ({model.board_name}, {model.group})"
+        else:
+            desc_text = "Working well on your machine? Confirm your laptop model to help add it to the community Tested Devices list."
+            badge_color = WARNING_COLOR
+            badge_text = f"⚠ Unverified Model: {model.model_name} ({model.board_name}) · Help verify this laptop"
+
+        community_card.pack_start(
+            make_label(desc_text, color=TEXT_MUTED, size=11),
+            False, False, 0,
+        )
+
+        chip_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+        chip_box.set_margin_top(4)
+        chip_box.set_margin_bottom(2)
+        status_badge = Gtk.Label()
+        status_badge.set_markup(
+            f'<span foreground="{badge_color}" font_desc="11" weight="bold">'
+            f'{badge_text}</span>'
+        )
+        chip_box.pack_start(status_badge, False, False, 0)
+        community_card.pack_start(chip_box, False, False, 0)
+
+        # Action buttons row
+        action_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
+        action_row.set_margin_top(4)
+
+        if is_verified:
+            confirm_btn = Gtk.Button(label="↗ View Tested Devices (GitHub)")
+            confirm_btn.get_style_context().add_class("secondary-btn")
+        else:
+            confirm_btn = Gtk.Button(label="✓ Confirm on GitHub")
+            confirm_btn.get_style_context().add_class("accent-btn")
+
+        copy_btn = Gtk.Button(label="Copy Details")
+        copy_btn.get_style_context().add_class("secondary-btn")
+
+        action_row.pack_start(confirm_btn, False, False, 0)
+        action_row.pack_start(copy_btn, False, False, 0)
+
+        feedback_label = Gtk.Label()
+        feedback_label.set_valign(Gtk.Align.CENTER)
+        action_row.pack_start(feedback_label, False, False, 8)
+
+        community_card.pack_start(action_row, False, False, 0)
+
+        def _on_confirm_clicked(_):
+            if is_verified:
+                open_url_async("https://github.com/gsriram24/FrostCenter#tested-on")
+                feedback_label.set_markup(
+                    f'<span foreground="{SUCCESS_COLOR}" font_desc="11">Opened Tested Devices list in browser!</span>'
+                )
+            else:
+                url = build_verified_device_url(model)
+                open_url_async(url)
+                feedback_label.set_markup(
+                    f'<span foreground="{SUCCESS_COLOR}" font_desc="11">Opened GitHub in browser!</span>'
+                )
+            GLib.timeout_add_seconds(3, lambda: (feedback_label.set_text("") or False))
+
+        def _on_copy_clicked(_):
+            report_text = build_verified_device_text(model)
+            copy_to_clipboard(report_text)
+            copy_btn.set_label("Copied!")
+            GLib.timeout_add_seconds(2, lambda: (copy_btn.set_label("Copy Details") or False))
+
+        confirm_btn.connect("clicked", _on_confirm_clicked)
+        copy_btn.connect("clicked", _on_copy_clicked)
+
+        # Links row
+        links_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
+        links_box.set_margin_top(8)
+
+        def _make_link(title, uri):
+            btn = Gtk.Button(label=title)
+            btn.get_style_context().add_class("pill-link")
+            btn.connect("clicked", lambda _, u=uri: open_url_async(u))
+            return btn
+
+        links_box.pack_start(_make_link("★ Star on GitHub", "https://github.com/gsriram24/FrostCenter"), False, False, 0)
+        links_box.pack_start(_make_link("↗ Discussions", "https://github.com/gsriram24/FrostCenter/discussions"), False, False, 0)
+        links_box.pack_start(_make_link("↗ Report an Issue", "https://github.com/gsriram24/FrostCenter/issues"), False, False, 0)
+
+        community_card.pack_start(links_box, False, False, 0)
+        self.pack_start(community_card, False, False, 0)
 
         # --- About card ---
         about_card = make_card()

@@ -162,13 +162,108 @@ switch:checked slider {{
 switch:disabled {{
     opacity: 0.4;
 }}
-.profile-indicator {{
-    background-color: rgba(255, 70, 85, 0.13);
-    border: 1px solid rgba(255, 70, 85, 0.4);
-    border-radius: 6px;
-    padding: 6px 12px;
-    color: {CPU_COLOR};
+.accent-btn {{
+    background-color: rgba(0, 212, 255, 0.14);
+    border: 1px solid rgba(0, 212, 255, 0.5);
+    border-radius: 8px;
+    padding: 8px 16px;
+    color: {GPU_COLOR};
+    font-weight: 600;
     font-size: 12px;
+}}
+.accent-btn:hover {{
+    background-color: rgba(0, 212, 255, 0.25);
+    border-color: {GPU_COLOR};
+    color: #ffffff;
+}}
+.secondary-btn {{
+    background-color: {BG_ELEVATED};
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 8px 16px;
+    color: {TEXT_PRIMARY};
+    font-size: 12px;
+}}
+.secondary-btn:hover {{
+    background-color: rgba(45, 45, 68, 0.85);
+    color: #ffffff;
+}}
+.pill-link {{
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 14px;
+    color: #a0a0b0;
+    font-size: 11px;
+    padding: 5px 12px;
+    box-shadow: none;
+    text-shadow: none;
+    background-image: none;
+}}
+.pill-link:hover {{
+    background-color: rgba(255, 255, 255, 0.12);
+    border-color: rgba(78, 205, 196, 0.8);
+    color: #ffffff;
+}}
+.pill-link label {{
+    color: inherit;
+    text-decoration: none;
+}}
+linkbutton, linkbutton > label, linkbutton:link, linkbutton:visited {{
+    text-decoration: none;
+    color: inherit;
+    box-shadow: none;
+    text-shadow: none;
+}}
+.mono-box {{
+    background-color: {BG_MAIN};
+    border: 1px solid {BORDER};
+    border-radius: 8px;
+    color: {TEXT_PRIMARY};
+    font-family: monospace;
+    font-size: 11px;
+    padding: 10px;
+}}
+.badge-warning {{
+    background-color: rgba(255, 140, 0, 0.14);
+    border: 1px solid rgba(255, 140, 0, 0.5);
+    border-radius: 6px;
+    padding: 4px 10px;
+    color: {WARNING_COLOR};
+    font-size: 11px;
+    font-weight: 600;
+}}
+.sidebar-verify-btn {{
+    background-color: rgba(0, 212, 255, 0.08);
+    border: 1px solid rgba(0, 212, 255, 0.35);
+    border-radius: 6px;
+    padding: 6px 10px;
+    color: {GPU_COLOR};
+    font-size: 11px;
+    font-weight: 600;
+    box-shadow: none;
+    text-shadow: none;
+    background-image: none;
+}}
+.sidebar-verify-btn:hover {{
+    background-color: rgba(0, 212, 255, 0.20);
+    border-color: {GPU_COLOR};
+    color: #ffffff;
+}}
+.sidebar-star-btn {{
+    background-color: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 6px;
+    padding: 5px 10px;
+    color: {TEXT_SECONDARY};
+    font-size: 11px;
+    box-shadow: none;
+    text-shadow: none;
+    background-image: none;
+}}
+.sidebar-star-btn:hover {{
+    background-color: rgba(255, 255, 255, 0.10);
+    border-color: rgba(255, 204, 0, 0.6);
+    color: #ffcc00;
 }}
 """.encode()
 
@@ -185,10 +280,12 @@ def apply_theme(window):
 
 def make_label(text, color=TEXT_PRIMARY, size=12, bold=False, uppercase=False):
     """Create a styled Gtk.Label."""
+    import html
     label = Gtk.Label()
     weight = "bold" if bold else "normal"
     display = text.upper() if uppercase else text
-    markup = f'<span foreground="{color}" font_desc="{size}" weight="{weight}">{display}</span>'
+    safe_text = html.escape(display)
+    markup = f'<span foreground="{color}" font_desc="{size}" weight="{weight}">{safe_text}</span>'
     label.set_markup(markup)
     label.set_halign(Gtk.Align.START)
     label.set_valign(Gtk.Align.CENTER)
