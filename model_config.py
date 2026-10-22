@@ -188,23 +188,59 @@ _DEFAULT_USER_CONFIG = {
 }
 
 
+def _resolve_config_path(for_writing=False):
+    """Resolve configuration file location for dev, user, and system installations."""
+    # 1. Local project/dev file (if it exists, or if script directory is writable and not in /usr)
+    local_cfg = os.path.join(_SCRIPT_DIR, "user_config.json")
+    if os.path.exists(local_cfg):
+        if not for_writing or os.access(local_cfg, os.W_OK) or os.access(_SCRIPT_DIR, os.W_OK):
+            return local_cfg
+
+    if not _SCRIPT_DIR.startswith(("/usr", "/opt")) and os.access(_SCRIPT_DIR, os.W_OK):
+        return local_cfg
+
+    # 2. System-wide config in /etc/frostcenter/config.json (when running as root or if it already exists)
+    etc_cfg = "/etc/frostcenter/config.json"
+    if os.path.exists(etc_cfg):
+        if not for_writing or os.access(etc_cfg, os.W_OK) or (os.path.exists("/etc/frostcenter") and os.access("/etc/frostcenter", os.W_OK)):
+            return etc_cfg
+
+    try:
+        if for_writing and os.geteuid() == 0:
+            return etc_cfg
+    except AttributeError:
+        pass
+
+    # 3. User config directory in ~/.config/frostcenter/config.json
+    sudo_user = os.environ.get("SUDO_USER")
+    if sudo_user:
+        user_home = os.path.expanduser(f"~{sudo_user}")
+    else:
+        user_home = os.environ.get("HOME") or os.path.expanduser("~")
+    return os.path.join(user_home, ".config", "frostcenter", "config.json")
+
+
 def load_user_config(path=None):
     """Load user config from JSON, creating defaults if missing."""
-    config_path = path or _USER_CONFIG_PATH
+    config_path = path or _resolve_config_path(for_writing=False)
     if os.path.exists(config_path):
-        with open(config_path) as f:
-            cfg = json.load(f)
-        # Merge with defaults for any missing keys
-        for key, default_val in _DEFAULT_USER_CONFIG.items():
-            if key not in cfg:
-                cfg[key] = default_val
-        return cfg
+        try:
+            with open(config_path) as f:
+                cfg = json.load(f)
+            # Merge with defaults for any missing keys
+            for key, default_val in _DEFAULT_USER_CONFIG.items():
+                if key not in cfg:
+                    cfg[key] = default_val
+            return cfg
+        except Exception:
+            pass
     return dict(_DEFAULT_USER_CONFIG)
 
 
 def save_user_config(config, path=None):
     """Save user config to JSON."""
-    config_path = path or _USER_CONFIG_PATH
+    config_path = path or _resolve_config_path(for_writing=True)
+    os.makedirs(os.path.dirname(os.path.abspath(config_path)), exist_ok=True)
     with open(config_path, "w") as f:
         json.dump(config, f, indent=2)
         f.write("\n")

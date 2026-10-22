@@ -35,6 +35,32 @@ Dark-themed GTK3 app with real-time temperature graphs, interactive fan curve ed
 
 ## Installation
 
+### Option 1: Native Packages (Recommended)
+
+Download the latest release package for your distribution from the [GitHub Releases](https://github.com/gsriram24/FrostCenter/releases) page:
+
+- **Debian / Ubuntu / Pop!_OS:**
+  ```bash
+  sudo apt install ./frostcenter_0.1.0_all.deb
+  ```
+- **Fedora / RHEL / openSUSE:**
+  ```bash
+  sudo dnf install ./frostcenter-0.1.0-1.noarch.rpm
+  ```
+- **Arch Linux (AUR):**
+  ```bash
+  yay -S frostcenter
+  ```
+- **Bazzite / SteamOS / Universal:**
+  Download `frostcenter-0.1.0.tar.gz`, extract, and run:
+  ```bash
+  tar -xzf frostcenter-0.1.0.tar.gz
+  cd frostcenter-0.1.0
+  ./install.sh
+  ```
+
+### Option 2: From Source
+
 ```bash
 git clone https://github.com/gsriram24/FrostCenter.git
 cd FrostCenter
@@ -42,7 +68,7 @@ chmod +x install.sh
 ./install.sh
 ```
 
-The installer checks dependencies and copies files to `~/.local/share/ofc/`. It creates a `frost` launcher in `~/.local/bin/`.
+The installer verifies dependencies and copies files to `~/.local/share/ofc/`, creating a `frost` launcher in `~/.local/bin/` and a desktop entry with PolicyKit GUI privilege escalation.
 
 ### Installing dependencies
 
