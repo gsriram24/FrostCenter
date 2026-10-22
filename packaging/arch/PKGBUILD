@@ -1,0 +1,40 @@
+# Maintainer: G Sriram <gsriram2403@gmail.com>
+pkgname=frostcenter
+pkgver=0.1.0
+pkgrel=1
+pkgdesc="MSI laptop fan control and thermal monitoring for Linux"
+arch=('any')
+url="https://github.com/gsriram24/FrostCenter"
+license=('GPL-3.0-or-later')
+depends=('python>=3.8' 'python-gobject' 'gtk3' 'polkit')
+source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
+sha256sums=('SKIP')
+
+package() {
+    cd "FrostCenter-$pkgver"
+
+    install -d "$pkgdir/usr/bin"
+    install -d "$pkgdir/usr/share/frostcenter/models"
+    install -d "$pkgdir/usr/share/frostcenter/ui"
+    install -d "$pkgdir/usr/share/applications"
+    install -d "$pkgdir/usr/share/icons/hicolor/scalable/apps"
+    install -d "$pkgdir/usr/share/polkit-1/actions"
+    install -d "$pkgdir/usr/share/metainfo"
+
+    install -m 755 packaging/frost "$pkgdir/usr/bin/frost"
+    install -m 644 OFC.py "$pkgdir/usr/share/frostcenter/"
+    install -m 644 ec_access.py "$pkgdir/usr/share/frostcenter/"
+    install -m 644 model_config.py "$pkgdir/usr/share/frostcenter/"
+    install -m 644 version.py "$pkgdir/usr/share/frostcenter/"
+    install -m 644 models/database.json "$pkgdir/usr/share/frostcenter/models/"
+    install -m 644 ui/*.py "$pkgdir/usr/share/frostcenter/ui/"
+
+    install -m 644 packaging/io.github.gsriram24.frostcenter.desktop "$pkgdir/usr/share/applications/"
+    install -m 644 assets/frostcenter.svg "$pkgdir/usr/share/icons/hicolor/scalable/apps/"
+    install -m 644 packaging/polkit/io.github.gsriram24.frostcenter.policy "$pkgdir/usr/share/polkit-1/actions/"
+    install -m 644 packaging/metainfo/io.github.gsriram24.frostcenter.metainfo.xml "$pkgdir/usr/share/metainfo/"
+
+    install -Dm644 packaging/frost.1 "$pkgdir/usr/share/man/man1/frost.1"
+    install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+    install -Dm644 README.md "$pkgdir/usr/share/doc/$pkgname/README.md"
+}

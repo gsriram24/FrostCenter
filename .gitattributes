@@ -1,0 +1,12 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Enforce LF for Linux shell scripts and packaging configs
+*.sh text eol=lf
+packaging/frost text eol=lf
+packaging/debian/postinst text eol=lf
+packaging/debian/postrm text eol=lf
+packaging/debian/control text eol=lf
+packaging/rpm/frostcenter.spec text eol=lf
+packaging/arch/PKGBUILD text eol=lf
+*.py text eol=lf

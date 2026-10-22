@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.gsriram24.frostcenter</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+  <name>FrostCenter</name>
+  <summary>MSI laptop fan control and thermal monitoring for Linux</summary>
+  
+  <description>
+    <p>
+      FrostCenter is a modern, lightweight GTK3 application designed specifically for MSI laptops on Linux.
+      It communicates directly with the hardware Embedded Controller (EC) via ACPI port I/O (/dev/port),
+      requiring zero out-of-tree kernel modules.
+    </p>
+    <p>Features include:</p>
+    <ul>
+      <li>Live CPU and GPU temperature and fan RPM monitoring with rolling 60-second Cairo graphs</li>
+      <li>Multiple fan profiles: Auto, Silent, Basic (offset), and Advanced (interactive curve editor)</li>
+      <li>Cooler Boost toggle for instant maximum cooling</li>
+      <li>Battery charge threshold limits (50–100%) to preserve battery longevity</li>
+      <li>Auto-detection across 130+ MSI laptop motherboards and 21 hardware groups</li>
+      <li>Integrated community hardware verification and smart diagnostic reporter</li>
+    </ul>
+  </description>
+
+  <launchable type="desktop-id">io.github.gsriram24.frostcenter.desktop</launchable>
+
+  <url type="homepage">https://github.com/gsriram24/FrostCenter</url>
+  <url type="bugtracker">https://github.com/gsriram24/FrostCenter/issues</url>
+  <url type="vcs-browser">https://github.com/gsriram24/FrostCenter</url>
+
+  <developer id="io.github.gsriram24">
+    <name>G Sriram</name>
+  </developer>
+
+  <content_rating type="oars-1.1" />
+
+  <provides>
+    <binary>frost</binary>
+  </provides>
+
+  <categories>
+    <category>Settings</category>
+    <category>HardwareSettings</category>
+  </categories>
+
+  <releases>
+    <release version="0.1.0" date="2026-10-22">
+      <description>
+        <p>Initial public beta release of FrostCenter.</p>
+      </description>
+    </release>
+  </releases>
+</component>

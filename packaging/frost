@@ -1,0 +1,24 @@
+#!/bin/sh
+# FrostCenter system launcher
+export OFC_DIR="/usr/share/frostcenter"
+
+# Informational flags do not require root escalation
+for arg in "$@"; do
+    case "$arg" in
+        -h|--help|-v|--version)
+            exec python3 "$OFC_DIR/OFC.py" "$@"
+            ;;
+    esac
+done
+
+if [ "$(id -u)" -ne 0 ]; then
+    if [ -t 0 ] && command -v sudo >/dev/null 2>&1; then
+        exec sudo python3 "$OFC_DIR/OFC.py" "$@"
+    elif command -v pkexec >/dev/null 2>&1; then
+        exec pkexec /usr/bin/frost "$@"
+    else
+        exec sudo python3 "$OFC_DIR/OFC.py" "$@"
+    fi
+else
+    exec python3 "$OFC_DIR/OFC.py" "$@"
+fi

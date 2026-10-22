@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=FrostCenter
+Comment=MSI laptop fan control and thermal monitoring
+Exec=pkexec /usr/bin/frost
+Icon=frostcenter
+Terminal=false
+Type=Application
+Categories=Settings;HardwareSettings;
+Keywords=fan;temperature;msi;cooling;thermal;
+StartupNotify=true
+StartupWMClass=frostcenter
