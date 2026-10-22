@@ -29,14 +29,19 @@
   <url type="bugtracker">https://github.com/gsriram24/FrostCenter/issues</url>
   <url type="vcs-browser">https://github.com/gsriram24/FrostCenter</url>
 
+  <developer id="io.github.gsriram24">
+    <name>G Sriram</name>
+  </developer>
+
+  <content_rating type="oars-1.1" />
+
   <provides>
     <binary>frost</binary>
   </provides>
 
   <categories>
-    <category>System</category>
+    <category>Settings</category>
     <category>HardwareSettings</category>
-    <category>Utility</category>
   </categories>
 
   <releases>

@@ -27,6 +27,12 @@ cp "$ROOT_DIR"/ui/*.py "$TAR_DIR/ui/"
 cp "$ROOT_DIR"/assets/*.svg "$TAR_DIR/assets/" 2>/dev/null || true
 cp -r "$ROOT_DIR/packaging"/* "$TAR_DIR/packaging/"
 
+# Sanitize line endings and file permissions
+find "$TAR_DIR" -type f -exec sed -i 's/\r$//' {} +
+find "$TAR_DIR" -type d -exec chmod 755 {} +
+find "$TAR_DIR" -type f -exec chmod 644 {} +
+chmod 755 "$TAR_DIR/install.sh" "$TAR_DIR/packaging/frost" "$TAR_DIR/packaging/build_packages.sh"
+
 tar -czf "$DIST_DIR/frostcenter-$VERSION.tar.gz" -C "$(dirname "$TAR_DIR")" "frostcenter-$VERSION"
 rm -rf "$(dirname "$TAR_DIR")"
 echo "  -> Created $DIST_DIR/frostcenter-$VERSION.tar.gz"
@@ -43,16 +49,29 @@ if command -v dpkg-deb >/dev/null 2>&1; then
     mkdir -p "$DEB_ROOT/usr/share/icons/hicolor/scalable/apps"
     mkdir -p "$DEB_ROOT/usr/share/polkit-1/actions"
     mkdir -p "$DEB_ROOT/usr/share/metainfo"
+    mkdir -p "$DEB_ROOT/usr/share/doc/frostcenter"
+    mkdir -p "$DEB_ROOT/usr/share/man/man1"
 
     # Control metadata
     cp "$ROOT_DIR/packaging/debian/control" "$DEB_ROOT/DEBIAN/"
     cp "$ROOT_DIR/packaging/debian/postinst" "$DEB_ROOT/DEBIAN/"
     cp "$ROOT_DIR/packaging/debian/postrm" "$DEB_ROOT/DEBIAN/"
+    sed -i 's/\r$//' "$DEB_ROOT/DEBIAN/control" "$DEB_ROOT/DEBIAN/postinst" "$DEB_ROOT/DEBIAN/postrm"
     chmod 755 "$DEB_ROOT/DEBIAN/postinst" "$DEB_ROOT/DEBIAN/postrm"
+
+    # Documentation & Copyright (Debian Policy §12.5, §12.7)
+    install -m 644 "$ROOT_DIR/packaging/debian/copyright" "$DEB_ROOT/usr/share/doc/frostcenter/copyright"
+    gzip -9n -c "$ROOT_DIR/packaging/debian/changelog" > "$DEB_ROOT/usr/share/doc/frostcenter/changelog.gz"
+    chmod 644 "$DEB_ROOT/usr/share/doc/frostcenter/changelog.gz"
+
+    # Manual Page (Debian Policy §13.1)
+    gzip -9n -c "$ROOT_DIR/packaging/frost.1" > "$DEB_ROOT/usr/share/man/man1/frost.1.gz"
+    chmod 644 "$DEB_ROOT/usr/share/man/man1/frost.1.gz"
 
     # Application files
     install -m 755 "$ROOT_DIR/packaging/frost" "$DEB_ROOT/usr/bin/frost"
     install -m 644 "$ROOT_DIR/OFC.py" "$DEB_ROOT/usr/share/frostcenter/"
+    sed -i -e '/^#!\/usr\/bin\/python3/d' "$DEB_ROOT/usr/share/frostcenter/OFC.py"
     install -m 644 "$ROOT_DIR/ec_access.py" "$DEB_ROOT/usr/share/frostcenter/"
     install -m 644 "$ROOT_DIR/model_config.py" "$DEB_ROOT/usr/share/frostcenter/"
     install -m 644 "$ROOT_DIR/version.py" "$DEB_ROOT/usr/share/frostcenter/"
@@ -66,6 +85,9 @@ if command -v dpkg-deb >/dev/null 2>&1; then
     fi
     install -m 644 "$ROOT_DIR/packaging/polkit/io.github.gsriram24.frostcenter.policy" "$DEB_ROOT/usr/share/polkit-1/actions/"
     install -m 644 "$ROOT_DIR/packaging/metainfo/io.github.gsriram24.frostcenter.metainfo.xml" "$DEB_ROOT/usr/share/metainfo/"
+
+    # Strip CRLF on installed scripts
+    sed -i 's/\r$//' "$DEB_ROOT/usr/bin/frost"
 
     dpkg-deb --build "$DEB_ROOT" "$DIST_DIR/frostcenter_${VERSION}_all.deb"
     rm -rf "$(dirname "$DEB_ROOT")"

@@ -1,0 +1,43 @@
+.TH FROST 1 "October 2026" "FrostCenter 0.1.0" "User Commands"
+.SH NAME
+frost \- MSI laptop fan control and thermal monitoring for Linux
+.SH SYNOPSIS
+.B frost
+[\fB\-h\fR|\fB\-\-help\fR]
+[\fB\-v\fR|\fB\-\-version\fR]
+[\fB\-\-read\-only\fR]
+.SH DESCRIPTION
+.B FrostCenter
+is a modern GTK3 application for monitoring and controlling fan curves,
+temperature thresholds, and battery health on MSI laptops via direct ACPI
+Embedded Controller (EC) port I/O (/dev/port).
+.SH OPTIONS
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Show help message and exit.
+.TP
+\fB\-v\fR, \fB\-\-version\fR
+Show program version and exit.
+.TP
+\fB\-\-read\-only\fR
+Start in read-only monitoring mode (no EC register writes).
+.SH PRIVILEGES
+Full fan curve editing and battery charge threshold modification requires
+root privileges to access \fB/dev/port\fR. When launched from desktop environments,
+privilege escalation is handled via PolicyKit (\fBpkexec\fR). When launched from
+an interactive terminal, \fBsudo\fR is used automatically.
+.SH FILES
+.TP
+.I /usr/share/frostcenter/
+Application files and motherboard definition database.
+.TP
+.I /usr/share/polkit-1/actions/io.github.gsriram24.frostcenter.policy
+PolicyKit policy granting graphical privilege escalation.
+.TP
+.I /etc/frostcenter/config.json
+System-wide user configuration file.
+.SH AUTHORS
+G Sriram <gsriram2403@gmail.com>
+.SH SEE ALSO
+.BR pkexec (1),
+.BR sudo (8)

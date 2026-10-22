@@ -6,6 +6,7 @@ Summary:        MSI laptop fan control and thermal monitoring for Linux
 License:        GPL-3.0-or-later
 URL:            https://github.com/gsriram24/FrostCenter
 Source0:        %{name}-%{version}.tar.gz
+Packager:       G Sriram <gsriram2403@gmail.com>
 
 BuildArch:      noarch
 BuildRequires:  python3-devel
@@ -28,6 +29,7 @@ via direct ACPI Embedded Controller (EC) port I/O (/dev/port).
 %install
 rm -rf %{buildroot}
 mkdir -p %{buildroot}%{_bindir}
+mkdir -p %{buildroot}%{_mandir}/man1
 mkdir -p %{buildroot}%{_datadir}/frostcenter/models
 mkdir -p %{buildroot}%{_datadir}/frostcenter/ui
 mkdir -p %{buildroot}%{_datadir}/applications
@@ -36,7 +38,10 @@ mkdir -p %{buildroot}%{_datadir}/polkit-1/actions
 mkdir -p %{buildroot}%{_datadir}/metainfo
 
 install -m 755 packaging/frost %{buildroot}%{_bindir}/frost
+install -m 644 packaging/frost.1 %{buildroot}%{_mandir}/man1/frost.1
 install -m 644 OFC.py %{buildroot}%{_datadir}/frostcenter/
+# Remove shebang from installed library files per Fedora Python packaging guidelines
+sed -i -e '/^#!\/usr\/bin\/python3/d' %{buildroot}%{_datadir}/frostcenter/OFC.py
 install -m 644 ec_access.py %{buildroot}%{_datadir}/frostcenter/
 install -m 644 model_config.py %{buildroot}%{_datadir}/frostcenter/
 install -m 644 version.py %{buildroot}%{_datadir}/frostcenter/
@@ -50,13 +55,15 @@ install -m 644 packaging/metainfo/io.github.gsriram24.frostcenter.metainfo.xml %
 
 %postun
 if [ $1 -eq 0 ]; then
-    rm -rf %{_datadir}/frostcenter
+    find %{_datadir}/frostcenter -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || :
+    rmdir %{_datadir}/frostcenter 2>/dev/null || :
 fi
 
 %files
 %license LICENSE
 %doc README.md CONTRIBUTING.md
 %{_bindir}/frost
+%{_mandir}/man1/frost.1*
 %{_datadir}/frostcenter/
 %{_datadir}/applications/io.github.gsriram24.frostcenter.desktop
 %{_datadir}/icons/hicolor/scalable/apps/frostcenter.svg
