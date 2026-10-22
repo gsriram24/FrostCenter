@@ -145,9 +145,11 @@ def main():
 
     # 2. Mock kernel lockdown status
     ec_access.get_lockdown_status = lambda: 'none'
+    OFC.get_lockdown_status = lambda: 'none'
 
     # 3. Mock ACPI EC access (/dev/port)
     ec_access.ECAccess = MockECAccess
+    OFC.ECAccess = MockECAccess
 
     # 4. Mock diagnostic probe if unmapped
     if args.unmapped:
