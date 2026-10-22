@@ -196,15 +196,31 @@ switch:disabled {{
     background-color: rgba(45, 45, 68, 0.85);
     color: #ffffff;
 }}
-.link-btn {{
-    background: transparent;
-    border: none;
-    color: {TEXT_MUTED};
+.pill-link {{
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 14px;
+    color: #a0a0b0;
     font-size: 11px;
-    padding: 4px 6px;
+    padding: 5px 12px;
+    box-shadow: none;
+    text-shadow: none;
+    background-image: none;
 }}
-.link-btn:hover {{
-    color: {GPU_COLOR};
+.pill-link:hover {{
+    background-color: rgba(255, 255, 255, 0.12);
+    border-color: rgba(78, 205, 196, 0.8);
+    color: #ffffff;
+}}
+.pill-link label {{
+    color: inherit;
+    text-decoration: none;
+}}
+linkbutton, linkbutton > label, linkbutton:link, linkbutton:visited {{
+    text-decoration: none;
+    color: inherit;
+    box-shadow: none;
+    text-shadow: none;
 }}
 .mono-box {{
     background-color: {BG_MAIN};
@@ -239,10 +255,12 @@ def apply_theme(window):
 
 def make_label(text, color=TEXT_PRIMARY, size=12, bold=False, uppercase=False):
     """Create a styled Gtk.Label."""
+    import html
     label = Gtk.Label()
     weight = "bold" if bold else "normal"
     display = text.upper() if uppercase else text
-    markup = f'<span foreground="{color}" font_desc="{size}" weight="{weight}">{display}</span>'
+    safe_text = html.escape(display)
+    markup = f'<span foreground="{color}" font_desc="{size}" weight="{weight}">{safe_text}</span>'
     label.set_markup(markup)
     label.set_halign(Gtk.Align.START)
     label.set_valign(Gtk.Align.CENTER)

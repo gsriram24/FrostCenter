@@ -220,7 +220,7 @@ def build_verified_device_url(model):
     """Build pre-filled GitHub issue URL for a verified working device."""
     title = f"Device Report: {model.model_name} ({model.board_name})"
     body = build_verified_device_text(model)
-    params = urllib.parse.urlencode({"title": title, "body": body})
+    params = urllib.parse.urlencode({"title": title, "body": body, "labels": "device-report"})
     return f"https://github.com/gsriram24/FrostCenter/issues/new?{params}"
 
 

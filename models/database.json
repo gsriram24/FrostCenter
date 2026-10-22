@@ -78,7 +78,8 @@
     },
     "MS-14D2": {
       "group": "G2_0",
-      "name": "Modern 14 B11M"
+      "name": "Modern 14 B11M",
+      "verified": true
     },
     "MS-14D3": {
       "group": "G2_0",
@@ -358,7 +359,8 @@
     },
     "MS-16R8": {
       "group": "G2_6",
-      "name": "Thin GF63 12VE / Thin GF63 12UCX / Thin GF63 12V(E/F) / Thin GF63 12UC / Thin 15 B12UCX / B12VE"
+      "name": "Thin GF63 12VE / Thin GF63 12UCX / Thin GF63 12V(E/F) / Thin GF63 12UC / Thin 15 B12UCX / B12VE",
+      "verified": true
     },
     "MS-16RK": {
       "group": "G2_6",
@@ -414,7 +416,8 @@
     },
     "MS-16W2": {
       "group": "G1_7",
-      "name": "GF65 Thin 10UE"
+      "name": "GF65 Thin 10UE",
+      "verified": true
     },
     "MS-16WK": {
       "group": "G1_8",
@@ -562,7 +565,8 @@
     },
     "MS-182L": {
       "group": "G2_10",
-      "name": "Vector A18 HX A9WHG / New ec version for Vector A18 HX A9WHG"
+      "name": "Vector A18 HX A9WHG / New ec version for Vector A18 HX A9WHG",
+      "verified": true
     }
   },
   "default_fan_curves": {

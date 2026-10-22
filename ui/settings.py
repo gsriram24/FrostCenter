@@ -127,11 +127,20 @@ class SettingsPage(Gtk.Box):
             make_label("Device Verification & Community", size=13, bold=True),
             False, False, 0,
         )
+
+        is_verified = getattr(model, 'is_verified', False)
+
+        if is_verified:
+            desc_text = "This laptop model is confirmed working by the community on Linux."
+            badge_color = SUCCESS_COLOR
+            badge_text = f"✓ Community Verified: {model.model_name} ({model.board_name}, {model.group})"
+        else:
+            desc_text = "Working well on your machine? Confirm your laptop model to help add it to the community Tested Devices list."
+            badge_color = WARNING_COLOR
+            badge_text = f"⚠ Unverified Model: {model.model_name} ({model.board_name}) · Help verify this laptop"
+
         community_card.pack_start(
-            make_label(
-                "Working well on your machine? Submit a 1-click report to verify your laptop model on GitHub.",
-                color=TEXT_MUTED, size=11,
-            ),
+            make_label(desc_text, color=TEXT_MUTED, size=11),
             False, False, 0,
         )
 
@@ -140,8 +149,8 @@ class SettingsPage(Gtk.Box):
         chip_box.set_margin_bottom(2)
         status_badge = Gtk.Label()
         status_badge.set_markup(
-            f'<span foreground="{SUCCESS_COLOR}" font_desc="11" weight="bold">'
-            f'✓ Active Model: {model.model_name} ({model.board_name}, {model.group})</span>'
+            f'<span foreground="{badge_color}" font_desc="11" weight="bold">'
+            f'{badge_text}</span>'
         )
         chip_box.pack_start(status_badge, False, False, 0)
         community_card.pack_start(chip_box, False, False, 0)
@@ -150,8 +159,12 @@ class SettingsPage(Gtk.Box):
         action_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
         action_row.set_margin_top(4)
 
-        confirm_btn = Gtk.Button(label="✓ Confirm on GitHub")
-        confirm_btn.get_style_context().add_class("accent-btn")
+        if is_verified:
+            confirm_btn = Gtk.Button(label="↗ View Tested Devices (GitHub)")
+            confirm_btn.get_style_context().add_class("secondary-btn")
+        else:
+            confirm_btn = Gtk.Button(label="✓ Confirm on GitHub")
+            confirm_btn.get_style_context().add_class("accent-btn")
 
         copy_btn = Gtk.Button(label="Copy Details")
         copy_btn.get_style_context().add_class("secondary-btn")
@@ -166,11 +179,17 @@ class SettingsPage(Gtk.Box):
         community_card.pack_start(action_row, False, False, 0)
 
         def _on_confirm_clicked(_):
-            url = build_verified_device_url(model)
-            open_url_async(url)
-            feedback_label.set_markup(
-                f'<span foreground="{SUCCESS_COLOR}" font_desc="11">Opened GitHub in browser!</span>'
-            )
+            if is_verified:
+                open_url_async("https://github.com/gsriram24/FrostCenter#tested-on")
+                feedback_label.set_markup(
+                    f'<span foreground="{SUCCESS_COLOR}" font_desc="11">Opened Tested Devices list in browser!</span>'
+                )
+            else:
+                url = build_verified_device_url(model)
+                open_url_async(url)
+                feedback_label.set_markup(
+                    f'<span foreground="{SUCCESS_COLOR}" font_desc="11">Opened GitHub in browser!</span>'
+                )
             GLib.timeout_add_seconds(3, lambda: (feedback_label.set_text("") or False))
 
         def _on_copy_clicked(_):
@@ -183,17 +202,18 @@ class SettingsPage(Gtk.Box):
         copy_btn.connect("clicked", _on_copy_clicked)
 
         # Links row
-        links_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=16)
+        links_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
         links_box.set_margin_top(8)
 
         def _make_link(title, uri):
-            btn = Gtk.LinkButton(uri=uri, label=title)
-            btn.get_style_context().add_class("link-btn")
+            btn = Gtk.Button(label=title)
+            btn.get_style_context().add_class("pill-link")
+            btn.connect("clicked", lambda _, u=uri: open_url_async(u))
             return btn
 
         links_box.pack_start(_make_link("★ Star on GitHub", "https://github.com/gsriram24/FrostCenter"), False, False, 0)
-        links_box.pack_start(_make_link("💬 Community Discussions", "https://github.com/gsriram24/FrostCenter/discussions"), False, False, 0)
-        links_box.pack_start(_make_link("🐛 Report an Issue", "https://github.com/gsriram24/FrostCenter/issues"), False, False, 0)
+        links_box.pack_start(_make_link("↗ Discussions", "https://github.com/gsriram24/FrostCenter/discussions"), False, False, 0)
+        links_box.pack_start(_make_link("↗ Report an Issue", "https://github.com/gsriram24/FrostCenter/issues"), False, False, 0)
 
         community_card.pack_start(links_box, False, False, 0)
         self.pack_start(community_card, False, False, 0)
