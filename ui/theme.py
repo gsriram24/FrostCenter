@@ -240,6 +240,39 @@ linkbutton, linkbutton > label, linkbutton:link, linkbutton:visited {{
     font-size: 11px;
     font-weight: 600;
 }}
+.sidebar-verify-btn {{
+    background-color: rgba(0, 212, 255, 0.08);
+    border: 1px solid rgba(0, 212, 255, 0.35);
+    border-radius: 6px;
+    padding: 6px 10px;
+    color: {GPU_COLOR};
+    font-size: 11px;
+    font-weight: 600;
+    box-shadow: none;
+    text-shadow: none;
+    background-image: none;
+}}
+.sidebar-verify-btn:hover {{
+    background-color: rgba(0, 212, 255, 0.20);
+    border-color: {GPU_COLOR};
+    color: #ffffff;
+}}
+.sidebar-star-btn {{
+    background-color: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 6px;
+    padding: 5px 10px;
+    color: {TEXT_SECONDARY};
+    font-size: 11px;
+    box-shadow: none;
+    text-shadow: none;
+    background-image: none;
+}}
+.sidebar-star-btn:hover {{
+    background-color: rgba(255, 255, 255, 0.10);
+    border-color: rgba(255, 204, 0, 0.6);
+    color: #ffcc00;
+}}
 """.encode()
 
 

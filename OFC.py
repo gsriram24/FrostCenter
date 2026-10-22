@@ -15,6 +15,7 @@ from ui.dashboard import DashboardPage
 from ui.fan_control import FanControlPage
 from ui.battery import BatteryPage
 from ui.settings import SettingsPage
+from ui.helpers import open_url_async, build_verified_device_url
 
 
 def _show_error_dialog(title, message):
@@ -269,13 +270,34 @@ def main():
     profile_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
     profile_box.set_margin_start(20)
     profile_box.set_margin_end(20)
-    profile_box.set_margin_bottom(16)
+    profile_box.set_margin_bottom(10)
     profile_box.pack_start(make_label("Profile", color="#444444", size=10), False, False, 0)
     profile_label = Gtk.Label()
     profile_label.get_style_context().add_class("profile-indicator")
     _update_profile_indicator(profile_label, user_cfg.get("profile", "auto"))
     profile_box.pack_start(profile_label, False, False, 0)
     sidebar.pack_start(profile_box, False, False, 0)
+
+    # Sidebar footer: verification (if unverified) & GitHub star
+    footer_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+    footer_box.set_margin_start(14)
+    footer_box.set_margin_end(14)
+    footer_box.set_margin_bottom(14)
+
+    if not getattr(model, 'is_verified', False):
+        verify_btn = Gtk.Button(label="⚡ Verify Device")
+        verify_btn.get_style_context().add_class("sidebar-verify-btn")
+        verify_btn.set_tooltip_text("Help verify this laptop model on GitHub")
+        verify_btn.connect("clicked", lambda _: open_url_async(build_verified_device_url(model)))
+        footer_box.pack_start(verify_btn, False, False, 0)
+
+    star_btn = Gtk.Button(label="★ Star on GitHub")
+    star_btn.get_style_context().add_class("sidebar-star-btn")
+    star_btn.set_tooltip_text("Support FrostCenter on GitHub")
+    star_btn.connect("clicked", lambda _: open_url_async("https://github.com/gsriram24/FrostCenter"))
+    footer_box.pack_start(star_btn, False, False, 0)
+
+    sidebar.pack_start(footer_box, False, False, 0)
 
     main_box.pack_start(sidebar, False, False, 0)
 
