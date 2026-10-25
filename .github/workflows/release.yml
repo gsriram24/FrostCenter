@@ -29,13 +29,12 @@ jobs:
         run: |
           TAG_VERSION="${GITHUB_REF_NAME#v}"
           echo "RELEASE_VERSION=$TAG_VERSION" >> $GITHUB_ENV
-          echo "Building FrostCenter release: $TAG_VERSION (from tag $GITHUB_REF_NAME)"
-          cat <<EOF > version.py
-"""FrostCenter version definition."""
+          echo "Building FrostCenter release $TAG_VERSION from tag $GITHUB_REF_NAME"
+          echo '"""FrostCenter version definition."""' > version.py
+          echo "" >> version.py
+          echo "__version__ = \"$TAG_VERSION\"" >> version.py
+          echo 'APP_NAME = "FrostCenter"' >> version.py
 
-__version__ = "$TAG_VERSION"
-APP_NAME = "FrostCenter"
-EOF
 
       - name: Verify Python syntax and run test suite
         run: |
