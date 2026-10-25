@@ -9,4 +9,11 @@ packaging/debian/postrm text eol=lf
 packaging/debian/control text eol=lf
 packaging/rpm/frostcenter.spec text eol=lf
 packaging/arch/PKGBUILD text eol=lf
+packaging/io.github.gsriram24.frostcenter.desktop text eol=lf
+packaging/metainfo/*.xml text eol=lf
+packaging/polkit/*.policy text eol=lf
+packaging/frost.1 text eol=lf
+packaging/debian/changelog text eol=lf
+packaging/debian/copyright text eol=lf
 *.py text eol=lf
+
