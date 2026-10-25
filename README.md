@@ -41,11 +41,11 @@ Download the latest release package for your distribution from the [GitHub Relea
 
 - **Debian / Ubuntu / Pop!_OS:**
   ```bash
-  sudo apt install ./frostcenter_0.1.0_all.deb
+  sudo apt install ./frostcenter_*_all.deb
   ```
 - **Fedora / RHEL / openSUSE:**
   ```bash
-  sudo dnf install ./frostcenter-0.1.0-1.noarch.rpm
+  sudo dnf install ./frostcenter-*.noarch.rpm
   ```
 - **Arch Linux / Manjaro / EndeavourOS:**
   ```bash
@@ -55,10 +55,10 @@ Download the latest release package for your distribution from the [GitHub Relea
   ```
   *(AUR package submission pending upstream Arch registration reopening)*
 - **Bazzite / SteamOS / Universal:**
-  Download `frostcenter-0.1.0.tar.gz`, extract, and run:
+  Download `frostcenter-*.tar.gz`, extract, and run:
   ```bash
-  tar -xzf frostcenter-0.1.0.tar.gz
-  cd frostcenter-0.1.0
+  tar -xzf frostcenter-*.tar.gz
+  cd frostcenter-*
   ./install.sh
   ```
 

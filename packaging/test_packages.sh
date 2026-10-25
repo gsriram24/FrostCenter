@@ -32,7 +32,7 @@ fi
 
 # 3. Build Release Packages
 echo "[3/6] Building release packages (.deb, .rpm, .tar.gz)..."
-"$ROOT_DIR/packaging/build_packages.sh"
+"$ROOT_DIR/packaging/build_packages.sh" "$@"
 
 # 4. Debian Package Lifecycle Test (.deb)
 echo "[4/6] Testing Debian package installation & removal..."
