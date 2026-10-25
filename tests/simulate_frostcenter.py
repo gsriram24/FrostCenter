@@ -30,7 +30,7 @@ import ui.helpers
 import OFC
 from version import __version__
 
-_CURRENT_BOARD = "MS-16R4"
+_CURRENT_BOARD = "MS-17E9"
 
 
 class MockECAccess:
@@ -115,7 +115,7 @@ def main():
     global _CURRENT_BOARD
     parser = argparse.ArgumentParser(description="FrostCenter Hardware Simulator — runs real OFC.py")
     parser.add_argument('-v', '--version', action='version', version=f"FrostCenter {__version__} [SIMULATOR]")
-    parser.add_argument('--board', default='MS-16R4',
+    parser.add_argument('--board', default='MS-17E9',
                         help='Simulate a specific MSI motherboard ID (e.g., MS-16R4, MS-16W2)')
     parser.add_argument('--unmapped', action='store_true',
                         help='Simulate an unmapped/unsupported laptop to test the Diagnostic Reporter')
@@ -132,16 +132,7 @@ def main():
 
     # --- Hardware & Environment Mocks ---
     # 1. Mock DMI sysfs queries
-    def _mock_read_dmi(path):
-        if "board_name" in path:
-            return _CURRENT_BOARD
-        elif "product_name" in path:
-            return mock_product
-        elif "sys_vendor" in path:
-            return "Micro-Star International Co., Ltd."
-        return _CURRENT_BOARD
-
-    model_config._read_dmi = _mock_read_dmi
+    model_config._read_dmi = lambda path: _CURRENT_BOARD
 
     def _mock_read_dmi_value(name):
         if name == "board_name":

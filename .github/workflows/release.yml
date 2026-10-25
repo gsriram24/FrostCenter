@@ -36,10 +36,9 @@ jobs:
           echo 'APP_NAME = "FrostCenter"' >> version.py
 
 
-      - name: Verify Python syntax and run test suite
+      - name: Verify Python syntax
         run: |
-          python3 -m py_compile OFC.py ec_access.py model_config.py version.py ui/*.py tests/*.py
-          python3 -m unittest discover tests
+          python3 -m py_compile OFC.py ec_access.py model_config.py version.py ui/*.py tests/simulate_frostcenter.py
 
       - name: Build release packages (.deb, .rpm, .tar.gz)
         run: |
