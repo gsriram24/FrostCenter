@@ -25,6 +25,17 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y rpm dpkg-dev
 
+      - name: Determine release version from Git tag
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          echo "RELEASE_VERSION=$TAG_VERSION" >> $GITHUB_ENV
+          echo "Building FrostCenter release $TAG_VERSION from tag $GITHUB_REF_NAME"
+          echo '"""FrostCenter version definition."""' > version.py
+          echo "" >> version.py
+          echo "__version__ = \"$TAG_VERSION\"" >> version.py
+          echo 'APP_NAME = "FrostCenter"' >> version.py
+
+
       - name: Verify Python syntax
         run: |
           python3 -m py_compile OFC.py ec_access.py model_config.py version.py ui/*.py tests/simulate_frostcenter.py
@@ -32,7 +43,7 @@ jobs:
       - name: Build release packages (.deb, .rpm, .tar.gz)
         run: |
           chmod +x packaging/build_packages.sh
-          ./packaging/build_packages.sh
+          ./packaging/build_packages.sh "$RELEASE_VERSION"
 
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
