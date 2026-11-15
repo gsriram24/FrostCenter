@@ -343,7 +343,8 @@
     },
     "MS-16R4": {
       "group": "G1_7",
-      "name": "GF63 Thin 10SCX(R) / 10SCS(R) / GF63 Thin 9SCSR"
+      "name": "GF63 Thin 10SCX(R) / 10SCS(R) / GF63 Thin 9SCSR",
+      "verified": true
     },
     "MS-16R5": {
       "group": "G1_7",
@@ -522,7 +523,8 @@
     },
     "MS-17M1": {
       "group": "G2_1",
-      "name": "Creator 17 B11UE / Stealth GS76 11UG"
+      "name": "Creator 17 B11UE / Stealth GS76 11UG",
+      "verified": true
     },
     "MS-17N1": {
       "group": "G2_10",
