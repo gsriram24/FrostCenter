@@ -181,6 +181,9 @@ ui/
 | MSI Thin GF63 | `MS-16R8` | Ubuntu 26.04 | Working | @Leotruccc ([#8](https://github.com/gsriram24/FrostCenter/issues/8)) |
 | MSI Raider A18 HX A9W | `MS-182L` | Debian 13 (XanMod 7.0) | Working | @dye025 ([#11](https://github.com/gsriram24/FrostCenter/issues/11)) |
 | MSI GE72 6QD Apache Pro | `MS-1795` | Ubuntu 26.04 LTS | Working | @DuskVHyde77 ([#7](https://github.com/gsriram24/FrostCenter/issues/7)) |
+| MSI GF63 Thin 9SCSR | `MS-16R4` | Fedora 44 (KDE Plasma) | Working | @shishantbiswas ([#20](https://github.com/gsriram24/FrostCenter/issues/20)) |
+| MSI Creator 17 B11UE | `MS-17M1` | EndeavourOS | Working (EC firmware v319+) | @verkstaden-one ([#22](https://github.com/gsriram24/FrostCenter/issues/22)) |
+| MSI GF63 Thin 11UC | `MS-16R6` | Kali Linux (XFCE) | Working (Cooler Boost unconfirmed) | @Tropico-23 ([#21](https://github.com/gsriram24/FrostCenter/issues/21)) |
 
 If you've tested FrostCenter on your setup, feel free to open an issue or PR adding your device to this table.
 
