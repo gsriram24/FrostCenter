@@ -434,6 +434,10 @@
       "name": "GE72 6QD Apache Pro",
       "verified": true
     },
+    "MS-179B": {
+      "group": "G1_10",
+      "name": "GE72VR 7RF Apache Pro / GP72MVR 7RFX Leopard Pro"
+    },
     "MS-17E7": {
       "group": "G1_1",
       "name": "GP75 Leopard 10SEK / GL75 Leopard 10SFR"
