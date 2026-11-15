@@ -352,7 +352,8 @@
     },
     "MS-16R6": {
       "group": "G2_6",
-      "name": "GF63 Thin 11UC / 11SC"
+      "name": "GF63 Thin 11UC / 11SC",
+      "verified": true
     },
     "MS-16R7": {
       "group": "G2_6",
